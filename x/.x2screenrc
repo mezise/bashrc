@@ -1,0 +1,55 @@
+caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="
+termcapinfo xterm* ti@:te@
+defscrollback 100000
+#hardstatus alwayslastline
+#hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d/%m %{W}%c %{g}]'
+startup_message off
+msgwait 0
+shell -$SHELL # to remember prompt setting
+logfile ~michalm/slog
+logfile flush 1
+logtstamp on
+logtstamp after 5
+logtstamp string "-- time-stamp -- %Y-%m-%d %0c:%s --\012"
+log on
+
+chdir ~michalm/
+screen -L -t michalm
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+stuff "l\012" # command l and Enter \012
+
+chdir ~michalm/
+screen -L -t dir1
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+
+chdir ~michalm/
+screen -L -t dir2
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+
+chdir ~michalm/
+screen -L -t dir3
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+
+chdir ~michalm/
+screen -L -t dir4
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+
+chdir ~michalm/
+screen -L -t dir5
+#stuff "sudo bash --rcfile ~michalm/x/.bashrc\012"
+stuff "sudo -i\012"
+stuff "source ~michalm/x/.bashrc; cd ~michalm; clear\012"
+
+chdir ~michalm/
+
+select 0

@@ -1,0 +1,4 @@
+#source ~michalm/x/.bashrc
+#sudo bash --rcfile ~michalm/x/.bashrc
+source ~michalm/x/.bashrc
+screen -c ~michalm/x/.x2screenrc -S michalm-screen1 -D -RR

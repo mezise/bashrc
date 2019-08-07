@@ -1,0 +1,2 @@
+source ~michalm/x/.bashrc
+screen -c ~michalm/x/.xscreenrc -S michalm-screen1 -D -RR
