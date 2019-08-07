@@ -1,0 +1,3 @@
+set mouse-=a
+set ts=4 sw=4
+syntax on
