@@ -15,22 +15,28 @@ log on
 
 chdir ~michalm/
 screen -L -t michalm
+stuff "source ~michalm/.bashrc; clear\012"
 stuff "l\012" # command l and Enter \012
 
 chdir ~michalm/
 screen -L -t dir1
+stuff "source ~michalm/.bashrc; clear\012"
 
 chdir ~michalm/
 screen -L -t dir2
+stuff "source ~michalm/.bashrc; clear\012"
 
 chdir ~michalm/
 screen -L -t dir3
+stuff "source ~michalm/.bashrc; clear\012"
 
 chdir ~michalm/
 screen -L -t dir4
+stuff "source ~michalm/.bashrc; clear\012"
 
 chdir ~michalm/
 screen -L -t dir5
+stuff "source ~michalm/.bashrc; clear\012"
 
 chdir ~michalm/
 

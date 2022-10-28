@@ -888,6 +888,7 @@ function _setinit()
 		_FILES=()
 		_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
 		_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
+		_FILES+=( /home/$_USER/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
 
 		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
 		cd $_TMPREPODIR
