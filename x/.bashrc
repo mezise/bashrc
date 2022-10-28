@@ -871,9 +871,8 @@ function _init()
 	\rm -rf $_TMPREPODIR
 	$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
 
-	sed -i "s|^source /home/$_USER/xx/.bashrc||g" /home/$_USER/.bashrc
-	sed -i '${/^$/d;}' /home/$_USER/.bashrc
-	echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
+	grep -qF "source /home/$_USER/xx/.bashrc" /home/$_USER/.bashrc \
+		|| echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
 	_rrb
 }
 
