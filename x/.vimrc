@@ -1,4 +1,5 @@
-# Config for remote servers.
+" Config for remote servers.
+
 syntax on
 set nocompatible
 " set term=xterm-256color " no such option in neovim
