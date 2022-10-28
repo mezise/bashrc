@@ -156,7 +156,7 @@ function _docker_compose()
 		docker compose $EXCEPT_LAST_ARGS
 	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" ]]; then
 		_dok_tmp_compose_file_create $PAR1
-		echo docker compose -f ${_DOCKER_COMPOSE_TMP_FILE} $EXCEPT_LAST_ARGS
+		docker compose -f ${_DOCKER_COMPOSE_TMP_FILE} $EXCEPT_LAST_ARGS
 		_dok_tmp_compose_file_delete $PAR1
 	fi
 }
