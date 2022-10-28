@@ -898,6 +898,7 @@ function _setinit()
 		\rm -rf $_TMPREPODIR
 
 		cd $_CURDIR
+		_rrb
 	else
 		echo ::INFO: Not a box machine.
 	fi
