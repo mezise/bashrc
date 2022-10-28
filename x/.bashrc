@@ -874,6 +874,7 @@ function _init()
 	sed -i "s|^source /home/$_USER/xx/.bashrc||g" /home/$_USER/.bashrc
 	sed -i '${/^$/d;}' /home/$_USER/.bashrc
 	echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
+	_rrb
 }
 
 alias _setinit='_setinit'
@@ -898,7 +899,6 @@ function _setinit()
 		\rm -rf $_TMPREPODIR
 
 		cd $_CURDIR
-		_rrb
 	else
 		echo ::INFO: Not a box machine.
 	fi
