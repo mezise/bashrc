@@ -66,13 +66,36 @@ alias ver='
 	echo - Ker.RUN: `uname -r`; \
 	echo - Ker.INS: `if [ -f /var/log/pacman.log ] && [ -d /lib/modules/ ]; then ls -A1 /lib/modules/ | grep --color=never -P "^$(uname -r | sed -rn "s/^([^\.]+?\.[^\.]+?).*/\1/p")" | tail -n 1; else echo "not-found"; fi`; \
 	'
-if [ $(id -u) = 0 ] && [ -f /home/michalm/.screenrc ] ; then
-	alias rrs='screen -X -S michalm-screen1 quit ; cd /root/ ; screen -c /home/michalm/.screenrc -S michalm-screen1 -d -RR'
-elif [ $(id -u) = 0 ] && [ -f /root/michalm/.screenrc ] ; then
-	alias rrs='screen -X -S michalm-screen1 quit ; cd /root/ ; screen -c /root/michalm/.screenrc -S michalm-screen1 -d -RR'
-else
-	alias rrs="if screen -list | grep -q 'michalm-screen1'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm-screen1 quit' michalm; else screen -X -S michalm-screen1 quit; fi; fi; screen -c ~michalm/xx/.xscreenrc -S michalm-screen1 -D -RR"
+
+## Screen:
+_IS_SCREEN_FOUND=0
+if [ $(id -u) = 0 ]; then
+	if [ -f /home/michalm/.screenrc_r ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs='screen -X -S michalm_screen_root quit ; cd /root/ ; screen -c /home/michalm/.screenrc_r -S michalm_screen_root -d -RR'
+	elif [ -f /root/michalm/.screenrc ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs='screen -X -S michalm_screen_root quit ; cd /root/ ; screen -c /root/michalm/.screenrc -S michalm_screen_root -d -RR'
+	elif [ -f /home/michalm/.screenrc ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs='screen -X -S michalm_screen_root quit ; cd /root/ ; screen -c /home/michalm/.screenrc -S michalm_screen_root -d -RR'
+	fi
+elif [ "`whoami`" == "michalm" ]; then
+	if [ -f /home/michalm/.screenrc ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs='screen -X -S michalm_screen quit ; cd /root/ ; screen -c /home/michalm/.screenrc -S michalm_screen -d -RR'
+	fi
 fi
+if [ "$_IS_SCREEN_FOUND" == "0" ]; then
+	if [ -f /home/michalm/xx/.xscreenrc ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs="if screen -list | grep -q 'michalm_screen'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm_screen quit' michalm; else screen -X -S michalm_screen quit; fi; fi; screen -c /home/michalm/xx/.xscreenrc -S michalm_screen -D -RR"
+	fi
+fi
+if [ "$_IS_SCREEN_FOUND" == "0" ]; then
+	alias rrs='echo ::ERROR: screen config not found.'
+fi
+
 alias sudo='sudo '
 alias sudoi='sudo -E bash --rcfile ~michalm/x/.bashrc'
 alias sudoers_all='sudo echo "michalm ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/local'
