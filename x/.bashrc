@@ -892,6 +892,7 @@ function _setinit()
 		_CURDIR=`pwd -P`
 
 		# rm -rf $_REPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_REPODIR
+		git clone git+ssh://git@github.com/mezise/bashrc.git $_REPODIR
 		cd $_REPODIR
 
 		$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
