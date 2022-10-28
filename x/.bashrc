@@ -867,12 +867,12 @@ alias _init='_init'
 function _init()
 {
 	_USER=michalm
-	_REPODIR=/tmp/bashrc.`_get_rand_str`
+	_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 
-	git clone https://github.com/mezise/bashrc.git $_REPODIR
+	git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
 	$_SUDO mkdir -p /home/$_USER/xx
-	$_SUDO \cp -af $_REPODIR/x/. /home/$_USER/xx/
-	\rm -rf $_REPODIR
+	$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USER/xx/
+	\rm -rf $_TMPREPODIR
 	$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
 
 	sed -i 's|^source ~/xx/.bashrc||g' /home/$_USER/.bashrc
@@ -885,21 +885,22 @@ function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
 		_USER=michalm
-		# _REPODIR=/tmp/bashrc.`_get_rand_str`
-		_REPODIR=/tmp/bashrc.111
+		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+		# _TMPREPODIR=/tmp/bashrc.111
 		_FILE_SOURCE=/home/$_USER/x/.bashrc
-		_FILE_TARGET=$_REPODIR/x/.bashrc
+		_FILE_TARGET=$_TMPREPODIR/x/.bashrc
 		_CURDIR=`pwd -P`
 
-		rm -rf $_REPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_REPODIR
-		# git clone git+ssh://git@github.com/mezise/bashrc.git $_REPODIR
-		cd $_REPODIR
+		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
+		cd $_TMPREPODIR
 
 		$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
 		git add $_FILE_TARGET
 		git commit -m 'autocommit' $_FILE_TARGET
 
 		git push -u -f origin master
+
+		\rm -rf $_TMPREPODIR
 
 		cd $_CURDIR
 	fi
