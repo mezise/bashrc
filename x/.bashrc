@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
+_USER=michalm
 
 function is_cmd() {
 	PROG=$1
@@ -206,7 +207,7 @@ function _dok_tmp_compose_file_delete()
 ##
 
 alias log='_log'
-alias rrb='source ~/.bashrc'
+alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -rq $1 $2'
 alias diffdirs2='diff -r $1 $2'
 
@@ -866,7 +867,6 @@ function _get_cur_dir_md5()
 alias _init='_init'
 function _init()
 {
-	_USER=michalm
 	_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 
 	git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
@@ -884,7 +884,6 @@ alias _setinit='_setinit'
 function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
-		_USER=michalm
 		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 		# _TMPREPODIR=/tmp/bashrc.111
 		_FILE_SOURCE=/home/$_USER/x/.bashrc
