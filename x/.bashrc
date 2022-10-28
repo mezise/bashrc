@@ -942,9 +942,10 @@ function _function_add_new_above_dummy() {
 
 # === PROMPTS ===
 . /etc/environment
-if [ -z "$MY_SERVER" ]
-then
-	MY_SERVER="$(hostname)"
+if [ -z "$MICHALM_SERVER_NAME" ]; then
+	MY_SERVER=$(hostname)
+else
+	MY_SERVER=${MICHALM_SERVER_NAME}
 fi
 myPromptSign=$
 if [ $(id -u) = 0 ]; then
