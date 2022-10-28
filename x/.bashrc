@@ -234,11 +234,6 @@ alias pdfr='docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh'
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/mih/projects/mparker/p_other_test/deno/src/main.ts'
 GTK_THEME='Adwaita'
 
-alias brr=_brr
-function _brr {
-	source ~/.bashrc
-}
-
 alias cdf=_cdf
 function _cdf {
 	LAST=${@: $#}
@@ -867,6 +862,7 @@ function _get_cur_dir_md5()
 alias _init='_init'
 function _init()
 {
+	_USER=michalm
 	_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 
 	git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
@@ -875,9 +871,9 @@ function _init()
 	\rm -rf $_TMPREPODIR
 	$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
 
-	sed -i 's|^source ~/xx/.bashrc||g' /home/$_USER/.bashrc
+	sed -i "s|^source /home/$_USER/xx/.bashrc||g" /home/$_USER/.bashrc
 	sed -i '${/^$/d;}' /home/$_USER/.bashrc
-	echo 'source ~/xx/.bashrc' >> /home/$_USER/.bashrc
+	echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
 }
 
 alias _setinit='_setinit'
