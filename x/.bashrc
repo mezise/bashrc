@@ -79,19 +79,20 @@ if [ $(id -u) = 0 ]; then
 	elif [ -f /home/michalm/.screenrc ]; then
 		_IS_SCREEN_FOUND=1
 		alias rrs='screen -X -S michalm_screen_root quit ; cd /root/ ; screen -c /home/michalm/.screenrc -S michalm_screen_root -d -RR'
+	elif [ -f /home/michalm/xx/.xscreenrc ]; then
+		_IS_SCREEN_FOUND=1
+		alias rrs='screen -X -S michalm_screen_root quit ; cd /root/ ; screen -c /home/michalm/xx/.xscreenrc -S michalm_screen_root -d -RR'
 	fi
 elif [ "`whoami`" == "michalm" ]; then
 	if [ -f /home/michalm/.screenrc ]; then
 		_IS_SCREEN_FOUND=1
 		alias rrs='screen -X -S michalm_screen quit ; cd /root/ ; screen -c /home/michalm/.screenrc -S michalm_screen -d -RR'
-	fi
-fi
-if [ "$_IS_SCREEN_FOUND" == "0" ]; then
-	if [ -f /home/michalm/xx/.xscreenrc ]; then
+	elif [ -f /home/michalm/xx/.xscreenrc ]; then
 		_IS_SCREEN_FOUND=1
-		alias rrs="if screen -list | grep -q 'michalm_screen'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm_screen quit' michalm; else screen -X -S michalm_screen quit; fi; fi; screen -c /home/michalm/xx/.xscreenrc -S michalm_screen -D -RR"
+		alias rrs='screen -X -S michalm_screen quit ; cd /root/ ; screen -c /home/michalm/xx/.xscreenrc -S michalm_screen -d -RR'
 	fi
 fi
+# alias rrs="if screen -list | grep -q 'michalm_screen'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm_screen_root quit' michalm; else screen -X -S michalm_screen quit; fi; fi; screen -c /home/michalm/xx/.xscreenrc -S michalm_screen -D -RR"
 if [ "$_IS_SCREEN_FOUND" == "0" ]; then
 	alias rrs='echo ::ERROR: screen config not found.'
 fi
