@@ -71,7 +71,7 @@ if [ $(id -u) = 0 ] && [ -f /home/michalm/.screenrc ] ; then
 elif [ $(id -u) = 0 ] && [ -f /root/michalm/.screenrc ] ; then
 	alias rrs='screen -X -S michalm-screen1 quit ; cd /root/ ; screen -c /root/michalm/.screenrc -S michalm-screen1 -d -RR'
 else
-	alias rrs="if screen -list | grep -q 'michalm-screen1'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm-screen1 quit' michalm; else screen -X -S michalm-screen1 quit; fi; fi; screen -c ~michalm/x/.xscreenrc -S michalm-screen1 -D -RR"
+	alias rrs="if screen -list | grep -q 'michalm-screen1'; then if [ $(id -u) = 0 ]; then su -c 'screen -X -S michalm-screen1 quit' michalm; else screen -X -S michalm-screen1 quit; fi; fi; screen -c ~michalm/xx/.xscreenrc -S michalm-screen1 -D -RR"
 fi
 alias sudo='sudo '
 alias sudoi='sudo -E bash --rcfile ~michalm/x/.bashrc'
@@ -882,17 +882,22 @@ function _setinit()
 	if [ "`hostname`" == "box" ]; then
 		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 		# _TMPREPODIR=/tmp/bashrc.111
-		_FILE_SOURCE=/home/$_USER/x/.bashrc
-		_FILE_TARGET=$_TMPREPODIR/x/.bashrc
+		_FILES="x/.bashrc
+			x/.bashrc"
 		_CURDIR=`pwd -P`
 
 		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
 		cd $_TMPREPODIR
 
-		$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
-		git add $_FILE_TARGET
-		git commit -m 'autocommit' $_FILE_TARGET
+		for _f in $_FILES
+		do
+			_FILE_SOURCE=/home/$_USER/$_f
+			_FILE_TARGET=$_TMPREPODIR/$_f
+			$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
+			git add $_FILE_TARGET
+		done
 
+		git commit -a -m 'autocommit'
 		git push -u -f origin master
 
 		\rm -rf $_TMPREPODIR
