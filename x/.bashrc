@@ -880,19 +880,22 @@ alias _setinit='_setinit'
 function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
+		_CURDIR=`pwd -P`
+
 		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 		# _TMPREPODIR=/tmp/bashrc.111
-		_FILES="x/.bashrc
-			x/.bashrc"
-		_CURDIR=`pwd -P`
+
+		_FILES=()
+		_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
+		_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
 
 		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
 		cd $_TMPREPODIR
 
-		for _f in $_FILES
+		for row in ${_FILES[@]};
 		do
-			_FILE_SOURCE=/home/$_USER/$_f
-			_FILE_TARGET=$_TMPREPODIR/$_f
+			_FILE_SOURCE=${row%%,*}
+			_FILE_TARGET=${row##*,}
 			$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
 			git add $_FILE_TARGET
 		done

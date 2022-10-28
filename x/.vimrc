@@ -1,3 +1,4 @@
+# Config for remote servers.
 syntax on
 set nocompatible
 " set term=xterm-256color " no such option in neovim
@@ -14,4 +15,3 @@ set smarttab " Handle tabs more intelligently"
 set noexpandtab
 set shiftwidth=4 " an indent level is 4 spaces wide."
 set shiftround " rounds indent to a multiple of shiftwidth
-
