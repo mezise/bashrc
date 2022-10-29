@@ -123,10 +123,11 @@ _DOCKER_PS_FORMAT='table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}\t{{.Image}
 # _DOCKER_PS_FORMAT='table'
 export COMPOSE_IGNORE_ORPHANS=true
 _DOCKER_COMPOSE_MODES='["prod", "test", "dev"]'
-_DOCKER_COMPOSE_TMP_FILE="tmp.docker-compose.yml"
+_DOCKER_COMPOSE_FILE="docker-compose.yml"
+_DOCKER_COMPOSE_TMP_FILE="tmp.docker-compose.scmignore.yml"
 alias doc='docker'
 alias docc='docker compose'
-alias dok='_app'
+alias dok='_dok'
 alias doka='dok a'
 alias dokex='dok ex'
 
@@ -176,18 +177,31 @@ function _docker_compose()
 	fi
 	_dok_show_last_arg_err $PAR1
 	echo ::[$PAR1]
-	if [[ "$PAR1" == "prod" ]]; then
-		docker compose $EXCEPT_LAST_ARGS
-	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" ]]; then
-		_dok_tmp_compose_file_create $PAR1
-		docker compose -f ${_DOCKER_COMPOSE_TMP_FILE} $EXCEPT_LAST_ARGS
-		_dok_tmp_compose_file_delete $PAR1
+	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" ]]; then
+		_ADD_CMD_ARGS=
+		if [[ "$PAR1" != "prod" ]]; then
+			_ADD_CMD_ARGS+=' -f '${_DOCKER_COMPOSE_TMP_FILE}
+			_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+			if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
+				_ADD_CMD_ARGS+=' -f '$_DOCKER_COMPOSE_MODE_FILE
+			else
+				_DOCKER_COMPOSE_MODE_FILE=${PAR1}.${_DOCKER_COMPOSE_FILE}
+				if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
+					_ADD_CMD_ARGS+=' -f '$_DOCKER_COMPOSE_MODE_FILE
+				fi
+			fi
+			_dok_tmp_compose_file_create $PAR1
+		fi
+		docker compose${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
+		if [[ "$PAR1" != "prod" ]]; then
+			_dok_tmp_compose_file_delete $PAR1
+		fi
 	fi
 }
 function _dok_checked_last_arg()
 {
 	LAST_ARG=${@: $#}
-	if [[ ! -f docker-compose.yml ]]; then
+	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		RET=null
 	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
 		RET=$LAST_ARG
@@ -202,8 +216,8 @@ function _dok_checked_last_arg()
 }
 function _dok_show_last_arg_err()
 {
-	if [[ ! -f docker-compose.yml ]]; then
-		echo !!! ERROR: NO docker-compose.yml FILE IN CURRENT DIRECTORY. !!!
+	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
+		echo !!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!
 	fi
 	PAR1=$1
 	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" || "$PAR1" == "null" ]]; then
@@ -213,7 +227,7 @@ function _dok_show_last_arg_err()
 function _dok_tmp_compose_file_create()
 {
 	PAR1=$1
-	command cp -pf docker-compose.yml ${_DOCKER_COMPOSE_TMP_FILE}
+	command cp -pf ${_DOCKER_COMPOSE_FILE} ${_DOCKER_COMPOSE_TMP_FILE}
 	if [[ "$PAR1" == "test" ]]; then
 		sed -i "s|: #srv|_$PAR1: #srv|g" ${_DOCKER_COMPOSE_TMP_FILE}
 		sed -i 's|{PROD_|{TEST_|g' ${_DOCKER_COMPOSE_TMP_FILE}
@@ -255,7 +269,7 @@ alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
 alias pdfr='docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh'
-alias hdeno='deno run --allow-net --unstable --watch /home/michalm/mih/projects/mparker/p_other_test/deno/src/main.ts'
+alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 GTK_THEME='Adwaita'
 
 alias cdf=_cdf
@@ -475,7 +489,7 @@ function myphp() {
 		gunzip /home/michalm/t/myphp.tar.gz ; docker load -i /home/michalm/t/myphp.tar ;
 	fi
 }
-function _app() {
+function _dok() {
 	CLIENT=$1
 	ACTION=$2
 	ACTPAR1=$3
@@ -551,9 +565,9 @@ function _app() {
 		if [ "`hostname`" == "box" ]; then
 			options_dev="\
 				-v $p_root/_secure:/share/_secure \
-				-v /home/michalm/mih/projects/mparker:/var/www/html \
-				-v /home/michalm/mih/projects/mparker:/var/www/htmlssl \
-				-v /home/michalm/mih/projects/mparker:/var/www/html/mparker \
+				-v /home/michalm/projects:/var/www/html \
+				-v /home/michalm/projects:/var/www/htmlssl \
+				-v /home/michalm/projects:/var/www/html/projects \
 				-v /home/michalm:/share/dev \
 				-v $p_root/etc/apache2/_ports.localhost.conf:/etc/apache2/ports.conf \
  				-v $p_root/etc/apache2/_hostname.localhost.conf:/etc/apache2/conf-enabled/_hostname.localhost.conf \
