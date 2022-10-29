@@ -119,7 +119,7 @@ alias port='nc -vz'
 alias ports='netstat -tulpn'
 
 ## DOCKER:
-_DOCKER_PS_FORMAT='table {{.Status}}\t{{.Names}}\t{{.Ports}}'
+_DOCKER_PS_FORMAT='table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 # _DOCKER_PS_FORMAT='table'
 export COMPOSE_IGNORE_ORPHANS=true
 _DOCKER_COMPOSE_MODES='["prod", "test", "dev"]'
