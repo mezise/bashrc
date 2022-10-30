@@ -300,17 +300,17 @@ function _color_output_column()
 
 	vYEL="$(echo -e "\033[${vSTYLE};33m")"
 	vNC=$'\033[0m' # No Color
-	sed -e "s| *[^ ]* |${vYEL}&${vNC}|${vCOL}"
-    # awk "
-    #     BEGIN {
-    #         FPAT = \"([[:space:]]*[^[:space:]]+)\";
-    #         OFS = \"\";
-    #     }
-    #     {
-    #         \$${vCOL} = \"${vRED}\" \$${vCOL} \"${vNC}\";
-    #         print
-    #     }
-    # "
+	# sed -e "s| *[^ ]* |${vYEL}&${vNC}|${vCOL}"
+    awk "
+        BEGIN {
+            FPAT = \"([[:space:]]*[^[:space:]]+)\";
+            OFS = \"\";
+        }
+        {
+            \$${vCOL} = \"${vYEL}\" \$${vCOL} \"${vNC}\";
+            print
+        }
+    "
 }
 
 alias lg=_lg
