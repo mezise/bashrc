@@ -290,7 +290,27 @@ function _cdf {
 
 alias df=_df
 function _df {
- 	command df -h $@ | sed -rn "s#^([/|F].*)#\1#p" | sed -e $'s/ *[^ ]* /\033[1;33m&\033[0m/4'
+	 command df -h $@ | sed -rn "s#^([/|F].*)#\1#p" | _color_output_column 4 1
+}
+
+function _color_output_column()
+{
+	vCOL=$1
+	vSTYLE=$2
+
+	vYEL="$(echo -e "\033[${vSTYLE};33m")"
+	vNC=$'\033[0m' # No Color
+	sed -e "s| *[^ ]* |${vYEL}&${vNC}|${vCOL}"
+    # awk "
+    #     BEGIN {
+    #         FPAT = \"([[:space:]]*[^[:space:]]+)\";
+    #         OFS = \"\";
+    #     }
+    #     {
+    #         \$${vCOL} = \"${vRED}\" \$${vCOL} \"${vNC}\";
+    #         print
+    #     }
+    # "
 }
 
 alias lg=_lg
@@ -518,7 +538,7 @@ function _dok() {
 	fi
 	if [ "$CLIENT" == "" ] || [ "$CLIENT" == "list" ]; then
 		echo ::[ACTION: $ACTION \(active\)]
-		docker ps --format "$_DOCKER_PS_FORMAT"
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
 	elif [ "$CLIENT" == "a" ]; then
 		echo ::[ACTION: $ACTION \(all\)]
 		docker ps --format "$_DOCKER_PS_FORMAT" -a
