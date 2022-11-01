@@ -292,7 +292,10 @@ function _cdf {
 
 alias df=_df
 function _df {
-	 command df -h $@ | sed -rn "s#^([/|F].*)#\1#p" | _color_output_column 4 1
+	command df -h $@ \
+	  | sed -rn "s#^([/|F].*)#\1#p" \
+	  | grep -v '/snap/' \
+	  | _color_output_column 4 1
 }
 
 function _color_output_column()
