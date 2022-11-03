@@ -546,17 +546,17 @@ function _dok() {
 		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
 	elif [ "$CLIENT" == "a" ]; then
 		echo ::[ACTION: $ACTION \(all\)]
-		docker ps --format "$_DOCKER_PS_FORMAT" -a
+		docker ps --format "$_DOCKER_PS_FORMAT" -a | _color_output_column 1
 	elif [ "$CLIENT" == "ex" ]; then
 		echo ::[ACTION: $ACTION \(exited\)]
-		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited"
+		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1
 	elif [ "$CLIENT" == "clean" ]; then
 		echo ::[ACTION: $ACTION \(clean\)]
 		echo ::Remove dangling images and volumes
 		docker images -f 'dangling=true' -q | xargs --no-run-if-empty docker rmi ;
 		docker volume ls -f 'dangling=true' -q  | xargs --no-run-if-empty docker volume rm ;
 	elif [ "$ACTION" == "status" ]; then
-		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$"
+		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1
 	elif [ "$ACTION" == "build" ] || [ "$ACTION" == "recreate" ]; then
 		echo ::Remove dangling images and volumes
 		docker images -f 'dangling=true' -q | xargs --no-run-if-empty docker rmi ;
@@ -616,7 +616,7 @@ function _dok() {
 		echo ::Show images
 		docker images ;
 		echo ::Show containers
-		docker ps --format "$_DOCKER_PS_FORMAT" ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
 	elif [ "$ACTION" == "start" ]; then
 		docker start $APPNAME ;
 		docker container ls -a | grep $APPNAME ;
@@ -713,7 +713,7 @@ function mydbd() {
 		echo ::Show images
 		docker images ;
 		echo ::Show containers
-		docker ps --format "$_DOCKER_PS_FORMAT" ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
 	elif [ "$ACTION" == "start" ]; then
 		docker start mydb ;
 		docker container ls -a | grep 'mydb' ;
@@ -832,7 +832,7 @@ function lin() {
 		echo ::Show images
 		docker images ;
 		echo ::Show containers
-		docker ps --format "$_DOCKER_PS_FORMAT" ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
 	elif [ "$PAR1" == "start" ]; then
 		docker start lin ;
 		docker container ls -a | grep 'lin' ;
