@@ -100,7 +100,7 @@ if [ "$_IS_SCREEN_FOUND" == "0" ]; then
 fi
 
 alias sudo='sudo '
-alias sudoi='sudo -E bash --rcfile ~michalm/x/.bashrc'
+alias sudoi='sudo -E bash --rcfile ~michalm/.bashrc'
 alias sudoers_all='sudo echo "michalm ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/local'
 alias myip='echo `curl -s http://whatismyip.akamai.com`'
 alias ipp='myip'
