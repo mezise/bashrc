@@ -2,6 +2,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 _USER=michalm
+_OS_R=`lsb_release -rs`
 
 function is_cmd() {
 	PROG=$1
@@ -121,6 +122,11 @@ alias port='nc -vz'
 alias ports='netstat -tulpn'
 
 ## DOCKER:
+if [[ "$_OS_R" == "18.04" ]]; then
+	_DOCKER_COMPOSE_CMD='docker-compose'
+else
+	_DOCKER_COMPOSE_CMD='docker compose'
+fi
 _DOCKER_PS_FORMAT='table {{" "}}{{.Names}}\t{{.Status}}\t{{.Ports}}'
 # _DOCKER_PS_FORMAT='table'
 export COMPOSE_IGNORE_ORPHANS=true
@@ -128,7 +134,7 @@ _DOCKER_COMPOSE_MODES='["prod", "test", "dev"]'
 _DOCKER_COMPOSE_FILE="docker-compose.yml"
 _DOCKER_COMPOSE_TMP_FILE="tmp.docker-compose.scmignore.yml"
 alias doc='docker'
-alias docc='docker compose'
+alias docc=$_DOCKER_COMPOSE_CMD
 alias dok='_dok'
 alias doka='dok a'
 alias dokex='dok ex'
@@ -194,7 +200,7 @@ function _docker_compose()
 			fi
 			_dok_tmp_compose_file_create $PAR1
 		fi
-		docker compose${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
+		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
 		if [[ "$PAR1" != "prod" ]]; then
 			_dok_tmp_compose_file_delete $PAR1
 		fi
