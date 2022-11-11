@@ -122,7 +122,7 @@ alias port='nc -vz'
 alias ports='netstat -tulpn'
 
 ## DOCKER:
-if [[ "$_OS_R" == "18.04" ]]; then
+if [[ "$_OS_R" == "18.04DDD" ]]; then
 	_DOCKER_COMPOSE_CMD='docker-compose'
 else
 	_DOCKER_COMPOSE_CMD='docker compose'
