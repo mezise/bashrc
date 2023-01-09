@@ -2,7 +2,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 _USER=michalm
-_OS_R=`lsb_release -rs`
+# _OS_R=`lsb_release -rs`
 
 function is_cmd() {
 	PROG=$1
@@ -104,6 +104,7 @@ alias sudo='sudo '
 alias sudoi='sudo -E bash --rcfile ~michalm/.bashrc'
 alias sudoers_all='sudo echo "michalm ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/local'
 alias myip='echo `curl -s http://whatismyip.akamai.com`'
+# alias myip='echo `curl -s http://ipinfo.io/ip`'
 alias ipp='myip'
 alias myip2="ip route get 8.8.8.8 | sed -rn 's/.*src ([0-9\.]+)[ |].*/\1/p'"
 alias ipp2='myip2'
@@ -122,11 +123,7 @@ alias port='nc -vz'
 alias ports='netstat -tulpn'
 
 ## DOCKER:
-if [[ "$_OS_R" == "18.04DDD" ]]; then
-	_DOCKER_COMPOSE_CMD='docker-compose'
-else
-	_DOCKER_COMPOSE_CMD='docker compose'
-fi
+_DOCKER_COMPOSE_CMD='docker compose'
 _DOCKER_PS_FORMAT='table {{" "}}{{.Names}}\t{{.Status}}\t{{.Ports}}'
 # _DOCKER_PS_FORMAT='table'
 export COMPOSE_IGNORE_ORPHANS=true
@@ -253,11 +250,14 @@ function _dok_tmp_compose_file_delete()
 ##
 
 alias log='_log'
+alias log_clear='_log_clear'
+function _log_clear { $_SUDO journalctl --vacuum-time=150d ; }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -rq $1 $2'
 alias diffdirs2='diff -r $1 $2'
 
 # DESKTOP:
+GTK_THEME='Adwaita'
 alias rra='awesome-client "awesome.restart()"'
 alias backup='/home/backup/backup.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
@@ -278,7 +278,7 @@ alias code='vscodium'
 alias co='vscodium'
 alias pdfr='docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh'
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
-GTK_THEME='Adwaita'
+alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
 
 alias cdf=_cdf
 function _cdf {
@@ -389,6 +389,7 @@ function _log() {
 	if [ -z "$PARS" ]; then
 		journalctl -r | less
 	else
+		# cmd="journalctl -r -o short-iso | grep -E '$PARS' | less"
 		cmd="journalctl -r | grep -E '$PARS' | less"
 		eval $cmd
 	fi
@@ -891,7 +892,8 @@ function lastfiles() {
 	if [ "$MYPATH" == "" ]; then
 		MYPATH=.
 	fi
-	echo - !!! Find last $MYNR files in current directory [!www_write !CVS]!!! -
+	echo - !!! Usage: lastfiles Arg1_NrOfFiles_10 Arg2_Path_. !!! -
+	echo - !!! Find last $MYNR files in $MYPATH path [!www_write !CVS] !!! -
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
 function diffproj() {
