@@ -897,9 +897,15 @@ function lastfiles() {
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
 function diffproj() {
-	diff -Nr --brief --exclude="www_write" --exclude="CVS" $1 $2
+	diff -Nr --brief --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
+}
+function diffproj_() {
+	diff -Nr --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
 }
 function diffproj2() {
+	diff -Nr --brief --exclude="www_write" --exclude="CVS" $1 $2
+}
+function diffproj2_() {
 	diff -Nr --exclude="www_write" --exclude="CVS" $1 $2
 }
 function grepl() {
