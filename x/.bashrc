@@ -253,8 +253,8 @@ alias log='_log'
 alias log_clear='_log_clear'
 function _log_clear { $_SUDO journalctl --vacuum-time=150d ; }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
-alias diffdirs='diff -rq $1 $2'
-alias diffdirs2='diff -r $1 $2'
+alias diffdirs='diff -Nr --brief $1 $2'
+alias diffdirs2='diff -Nr $1 $2'
 
 # DESKTOP:
 GTK_THEME='Adwaita'
@@ -897,7 +897,10 @@ function lastfiles() {
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
 function diffproj() {
-	diff --brief -Nr $1 $2 | grep -vE '(/www_write/|/CVS/)'
+	diff -Nr --brief --exclude="www_write" --exclude="CVS" $1 $2
+}
+function diffproj2() {
+	diff -Nr --exclude="www_write" --exclude="CVS" $1 $2
 }
 function grepl() {
 	# Usage:
