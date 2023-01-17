@@ -254,7 +254,7 @@ alias log_clear='_log_clear'
 function _log_clear { $_SUDO journalctl --vacuum-time=150d ; }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -Nr --brief $1 $2'
-alias diffdirs2='diff -Nr $1 $2'
+alias diffdirs_='diff -Nr $1 $2'
 
 # DESKTOP:
 GTK_THEME='Adwaita'
