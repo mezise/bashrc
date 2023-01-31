@@ -896,6 +896,28 @@ function lastfiles() {
 	echo - !!! Find last $MYNR files in $MYPATH path [!www_write !CVS] !!! -
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
+function firstfiles() {
+	MYNR=$1
+	if [ "$MYNR" == "" ]; then
+		MYNR=10
+	fi
+	MYPATH=$2
+	if [ "$MYPATH" == "" ]; then
+		MYPATH=.
+	fi
+	MYNAME=$3
+	if [ "$MYNAME" != "" ]; then
+		_MYNAME=" -name '$MYNAME'"
+	fi
+	echo [$MYNAME]
+	echo - !!! Usage: firstfiles Arg1_NrOfFiles_10 Arg2_Path_. Arg3_Name_NONE !!! -
+	echo - !!! Find first $MYNR files in $MYPATH path [!www_write !CVS] of name \"$MYNAME\" !!! -
+	if [ "$MYNAME" != "" ]; then
+		find $MYPATH -name "${MYNAME}" -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -n | head -n $MYNR | cut -d ' ' -f 2-
+	else
+		find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -n | head -n $MYNR | cut -d ' ' -f 2-
+	fi
+}
 function diffproj() {
 	diff -Nr --brief --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
 }
