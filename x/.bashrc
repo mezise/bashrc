@@ -909,7 +909,6 @@ function firstfiles() {
 	if [ "$MYNAME" != "" ]; then
 		_MYNAME=" -name '$MYNAME'"
 	fi
-	echo [$MYNAME]
 	echo - !!! Usage: firstfiles Arg1_NrOfFiles_10 Arg2_Path_. Arg3_Name_NONE !!! -
 	echo - !!! Find first $MYNR files in $MYPATH path [!www_write !CVS] of name \"$MYNAME\" !!! -
 	if [ "$MYNAME" != "" ]; then
