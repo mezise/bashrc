@@ -113,6 +113,8 @@ alias luarocks53='sudo luarocks --lua-version 5.3'
 alias luaperm='sudo chmod -R a+rx /usr/share/lua/ /usr/lib/lua/'
 alias pik='pikaur'
 alias pikrem='pikaur -Rcs'
+alias piki='pikaur -Si'
+alias pikii='pikaur -Qi'
 alias upd='pik -Syu'
 alias updr='pik -Syuo'
 alias upda='pik -Syua'
@@ -276,7 +278,17 @@ alias aw='awmtt start -B /usr/local/bin/awesomegit -C ~/x/awesomeN_rc.lua -S 130
 alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
-alias pdfr='docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh'
+alias pdfr='_pdfr'
+function _pdfr() {
+	FILE_IN=$1
+	FILE_OUT="${FILE_IN%.pdf}.out.pdf"
+	FILE_OUT_I="${FILE_IN%.pdf}.info"
+	cp "$FILE_IN" /home/company/tmp/recode_pdf/
+	command docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh "$FILE_IN"
+	mv "/home/company/tmp/recode_pdf/$FILE_OUT" "./$FILE_OUT"
+	rm -f "/home/company/tmp/recode_pdf/$FILE_IN"
+	rm -f "/home/company/tmp/recode_pdf/$FILE_OUT_I"
+}
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
 
@@ -869,7 +881,8 @@ function cpmih() {
 	\cp -f $1 ~michalm/ ; chmod 700 ~michalm/* ; chown michalm ~michalm/* ;
 }
 function cvsdiff() {
-	cvsr diff -r HEAD $@
+	# cvsr diff -r HEAD $@
+	cvsr diff -r HEAD $@ | grep -v '^cvs diff: Diffing '
 }
 function cvsg() {
 	cvs -d ':extssh:michalmcvs@repo.arubico.com:/srv/cvsroot' $@ 2>&1 | grep --color 'U \|P \|A \|R \|M \|C \|Client:\|Server:\|.* aborted]:\|?DDD '
