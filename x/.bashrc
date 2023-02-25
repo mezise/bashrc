@@ -131,7 +131,6 @@ _DOCKER_PS_FORMAT='table {{" "}}{{.Names}}\t{{.Status}}\t{{.Ports}}'
 export COMPOSE_IGNORE_ORPHANS=true
 _DOCKER_COMPOSE_MODES='["prod", "test", "dev"]'
 _DOCKER_COMPOSE_FILE="docker-compose.yml"
-_DOCKER_COMPOSE_TMP_FILE="tmp.docker-compose.scmignore.yml"
 alias doc='docker'
 alias docc=$_DOCKER_COMPOSE_CMD
 alias dok='_dok'
@@ -154,6 +153,11 @@ alias dokbuildf='_docker_compose build --no-cache'
 
 alias dokrebuild='_docker_compose up --build -d'
 alias dokreb='_docker_compose up --build -d'
+# alias dokreb='_dokreb'
+# function _dokreb {
+# 	_docker_compose build $@
+# 	_docker_compose up -d $@
+# }
 alias dokrebuildforce='_dokrebf'
 alias dokrebf='_dokrebf'
 function _dokrebf {
@@ -183,26 +187,26 @@ function _docker_compose()
 		EXCEPT_LAST_ARGS=$@
 	fi
 	_dok_show_last_arg_err $PAR1
-	echo ::[$PAR1]
+	echo ::mode:[$PAR1]
 	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" ]]; then
 		_ADD_CMD_ARGS=
 		if [[ "$PAR1" != "prod" ]]; then
-			_ADD_CMD_ARGS+=' -f '${_DOCKER_COMPOSE_TMP_FILE}
+			_ADD_CMD_ARGS+=' -f 'tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 			_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
 			if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
-				_ADD_CMD_ARGS+=' -f '$_DOCKER_COMPOSE_MODE_FILE
+				_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
 			else
 				_DOCKER_COMPOSE_MODE_FILE=${PAR1}.${_DOCKER_COMPOSE_FILE}
 				if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
-					_ADD_CMD_ARGS+=' -f '$_DOCKER_COMPOSE_MODE_FILE
+					_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
 				fi
 			fi
 			_dok_tmp_compose_file_create $PAR1
 		fi
 		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
-		if [[ "$PAR1" != "prod" ]]; then
-			_dok_tmp_compose_file_delete $PAR1
-		fi
+		# if [[ "$PAR1" != "prod" ]]; then
+		# 	_dok_tmp_compose_file_delete $PAR1
+		# fi
 	fi
 }
 function _dok_checked_last_arg()
@@ -234,19 +238,27 @@ function _dok_show_last_arg_err()
 function _dok_tmp_compose_file_create()
 {
 	PAR1=$1
-	command cp -pf ${_DOCKER_COMPOSE_FILE} ${_DOCKER_COMPOSE_TMP_FILE}
-	if [[ "$PAR1" == "test" ]]; then
-		sed -i "s|: #srv|_$PAR1: #srv|g" ${_DOCKER_COMPOSE_TMP_FILE}
-		sed -i 's|{PROD_|{TEST_|g' ${_DOCKER_COMPOSE_TMP_FILE}
-	elif [ "$PAR1" == "dev" ]; then
-		sed -i "s|: #srv|_$PAR1: #srv|g" ${_DOCKER_COMPOSE_TMP_FILE}
-		sed -i 's|{PROD_|{_DEV_|g' ${_DOCKER_COMPOSE_TMP_FILE}
+	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.scmignore.${_DOCKER_COMPOSE_FILE}
+	_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
+		_DOCKER_COMPOSE_MODE_FILE=${PAR1}.${_DOCKER_COMPOSE_FILE}
 	fi
+	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
+		echo "" > $_DOCKER_COMPOSE_MODE_FILE
+	fi
+	command cp -pf ${_DOCKER_COMPOSE_MODE_FILE} tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	PAR1UPPER=${PAR1^^}
+	sed -i "s|{PROD_|{_${PAR1UPPER}_|g" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
+	sed -i "s|# mode_|${PAR1}_|g" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
+	sed -i "s|# mode_|${PAR1}_|g" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	sed -i "/# removeline/d" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
+	sed -i "/# removeline/d" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
 }
 function _dok_tmp_compose_file_delete()
 {
-	rm -f ${_DOCKER_COMPOSE_TMP_FILE}
-
+	PAR1=$1
+	rm -f tmp.scmignore.${_DOCKER_COMPOSE_FILE}
+	rm -f tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
 }
 
 ##
@@ -881,7 +893,6 @@ function cpmih() {
 	\cp -f $1 ~michalm/ ; chmod 700 ~michalm/* ; chown michalm ~michalm/* ;
 }
 function cvsdiff() {
-	# cvsr diff -r HEAD $@
 	cvsr diff -r HEAD $@ | grep -v '^cvs diff: Diffing '
 }
 function cvsg() {
@@ -1069,6 +1080,7 @@ export DUPLICACY_SSH_KEY_FILE='/root/.ssh/id_rsa'
 export RUSTC_WRAPPER=sccache
 export SCCACHE_DIR=/home/t/sccache
 export CARGO_TARGET_DIR=/home/t/target
+export RUSTUP_HOME=/home/t/rustup
 
 # export LANG=en_CA.utf8
 # export LC_COLLATE=C
