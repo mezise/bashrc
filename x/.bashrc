@@ -153,11 +153,6 @@ alias dokbuildf='_docker_compose build --no-cache'
 
 alias dokrebuild='_docker_compose up --build -d'
 alias dokreb='_docker_compose up --build -d'
-# alias dokreb='_dokreb'
-# function _dokreb {
-# 	_docker_compose build $@
-# 	_docker_compose up -d $@
-# }
 alias dokrebuildforce='_dokrebf'
 alias dokrebf='_dokrebf'
 function _dokrebf {
@@ -204,9 +199,9 @@ function _docker_compose()
 			_dok_tmp_compose_file_create $PAR1
 		fi
 		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
-		# if [[ "$PAR1" != "prod" ]]; then
-		# 	_dok_tmp_compose_file_delete $PAR1
-		# fi
+		if [[ "$PAR1" != "prod" ]]; then
+			_dok_tmp_compose_file_delete $PAR1
+		fi
 	fi
 }
 function _dok_checked_last_arg()
