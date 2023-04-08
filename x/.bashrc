@@ -268,6 +268,8 @@ alias diffdirs_='diff -Nr $1 $2'
 # DESKTOP:
 GTK_THEME='Adwaita'
 alias rra='awesome-client "awesome.restart()"'
+alias dbgn='_dbgn'
+function _dbgn { awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ; }
 alias backup='/home/backup/backup.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
 alias fan='systemctl status thinkfan ; sensors | grep --color=never Core'
@@ -298,6 +300,8 @@ function _pdfr() {
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
+alias wifi='nmcli dev wifi list --rescan yes'
+alias spt='speedtest'
 
 alias cdf=_cdf
 function _cdf {
@@ -1072,10 +1076,14 @@ export PATH
 export FZF_DEFAULT_OPTS="-m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --history=$HOME/.fzf_history --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview --ansi"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --color=always'
 export DUPLICACY_SSH_KEY_FILE='/root/.ssh/id_rsa'
-export RUSTC_WRAPPER=sccache
-export SCCACHE_DIR=/home/t/sccache
-export CARGO_TARGET_DIR=/home/t/target
+# Begin: Rust.
 export RUSTUP_HOME=/home/t/rustup
+export CARGO_HOME=/home/t/cargo
+export CARGO_TARGET_DIR=/home/t/target
+export CARGO_BUILD_JOBS=-1
+export SCCACHE_DIR=/home/t/sccache
+export RUSTC_WRAPPER=sccache
+# End.
 
 # export LANG=en_CA.utf8
 # export LC_COLLATE=C
