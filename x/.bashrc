@@ -270,6 +270,11 @@ GTK_THEME='Adwaita'
 alias rra='awesome-client "awesome.restart()"'
 alias dbgn='_dbgn'
 function _dbgn { awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ; }
+alias reboot='systemctl reboot'
+if [ "`hostname`" == "box" ]; then
+	alias hibernate='systemctl hibernate'
+	alias stop='poweroff'
+fi
 alias backup='/home/backup/backup.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
 alias fan='systemctl status thinkfan ; sensors | grep --color=never Core'
@@ -299,7 +304,8 @@ function _pdfr() {
 	rm -f "/home/company/tmp/recode_pdf/$FILE_OUT_I"
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
-alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
+# alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
+alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias spt='speedtest'
 
