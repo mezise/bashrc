@@ -1080,17 +1080,16 @@ alias upd_sam='_upd_sam'
 function _upd_sam {
 	FILE=$1
 	if [ "$FILE" == "" ]; then
-		echo ":WARN: Parameter 1 should be a path"
+		echo ":INFO: Parameter 1 should be a path"
 	else
 		if [[ ! -f "$FILE" ]]; then
 			echo ":WARN: Not existing file: ""$FILE"
-		else
-			echo "...updating file: ""$FILE"
-			cvs -d :ext:aymingcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
-			chmod 770 "$FILE"
-			chown www-data:www-data "$FILE"
-			ls -la "$FILE"
 		fi
+		echo "...updating file: ""$FILE"
+		cvs -d :ext:aymingcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
+		chmod 770 "$FILE"
+		chown www-data:www-data "$FILE"
+		ls -la "$FILE"
 	fi
 }
 
