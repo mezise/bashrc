@@ -43,9 +43,12 @@ alias fd='fd --hidden --exclude .git'
 alias g='grep --color=auto'
 alias eg='grep -E --color=auto'
 alias fg='grep -F --color=auto'
-alias du10='find -maxdepth 1 -exec du -hsx "{}" \; | sort -rh | head -11'
+alias certi='openssl x509 -text -noout -in'
+function _du10 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
+alias du10='_du10'
 alias du1='du10'
-alias du100='find -maxdepth 1 -exec du -hsx "{}" \; | sort -rh | head -101'
+function _du100 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
+alias du100='_du100'
 alias du2='du100'
 alias file_list='_file_list'
 alias file_du='_file_du'
@@ -112,14 +115,25 @@ alias ipp2='myip2'
 alias luarocks='sudo luarocks --lua-version 5.1'
 alias luarocks53='sudo luarocks --lua-version 5.3'
 alias luaperm='sudo chmod -R a+rx /usr/share/lua/ /usr/lib/lua/'
+##
 alias pik='pikaur'
 alias pikrem='pikaur -Rcs'
 alias piki='pikaur -Si'
 alias pikii='pikaur -Qi'
-alias upd='pik -Syu'
-alias updr='pik -Syuo'
-alias upda='pik -Syua'
-alias updker='pik -S $(pik -Qsq ^linux | grep -E --color=never ^linux)'
+alias upd='pikaur -Syu'
+alias updr='pikaur -Syuo'
+alias upda='pikaur -Syua'
+alias updker='pikaur -S $(pikaur -Qsq ^linux | grep -E --color=never ^linux)'
+##
+alias pik2='paru'
+alias pikrem2='paru -Rcs'
+alias piki2='paru -Si'
+alias pikii2='paru -Qi'
+alias upd2='paru -Syu'
+alias updr2='paru -Syu --repo'
+alias upda2='paru -Syu --aur'
+alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
+##
 alias sys='inxi -Fxxxz'
 alias por='nc -vz'
 alias port='nc -vz'
@@ -260,8 +274,32 @@ function _dok_tmp_compose_file_delete()
 ##
 
 alias log='_log'
-alias log_clear='_log_clear'
-function _log_clear { $_SUDO journalctl --vacuum-time=150d ; }
+function _log() {
+	PARS=$@
+	if [ -z "$PARS" ]; then
+		journalctl -r | less
+	else
+		# cmd="journalctl -r -o short-iso | grep -E '$PARS' | less"
+		cmd="journalctl -r | grep -E '$PARS' | less"
+		eval $cmd
+	fi
+}
+function _clear_all {
+	_clear_log
+	_clear_pacman
+}
+alias log_clear='_clear_log'
+function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
+function _clear_pacman() {
+	echo "START:" \
+	&& sudo du -sh /var/cache/pacman/pkg/ \
+	&& sudo du -sh ~/.cache/pikaur/pkg/ \
+	&& sudo paccache -rk1 \
+	&& sudo paccache -rk1 -c ~/.cache/pikaur/pkg/ \
+	&& sudo du -sh /var/cache/pacman/pkg/ \
+	&& sudo du -sh ~/.cache/pikaur/pkg/ \
+	&& echo "STOP."
+}
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -Nr --brief $1 $2'
 alias diffdirs_='diff -Nr $1 $2'
@@ -270,7 +308,10 @@ alias diffdirs_='diff -Nr $1 $2'
 GTK_THEME='Adwaita'
 alias rra='awesome-client "awesome.restart()"'
 alias dbgn='_dbgn'
-function _dbgn { awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ; }
+function _dbgn {
+	# awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ;
+	notify-send $@
+}
 alias reboot='systemctl reboot'
 if [ "`hostname`" == "box" ]; then
 	alias hibernate='systemctl hibernate'
@@ -305,8 +346,11 @@ function _pdfr() {
 	rm -f "/home/company/tmp/recode_pdf/$FILE_OUT_I"
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
+# Weather:
+alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF2'
 # alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
-alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
+# alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
+# alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF2'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias spt='speedtest'
 
@@ -411,17 +455,6 @@ function sc() {
 		/usr/bin/rg --hidden --follow $1
 	else
 		grep -E -R "$1" .
-	fi
-}
-
-function _log() {
-	PARS=$@
-	if [ -z "$PARS" ]; then
-		journalctl -r | less
-	else
-		# cmd="journalctl -r -o short-iso | grep -E '$PARS' | less"
-		cmd="journalctl -r | grep -E '$PARS' | less"
-		eval $cmd
 	fi
 }
 
@@ -1043,6 +1076,22 @@ function _setinit()
 	fi
 }
 
+alias cvs_upd_sam='_cvs_upd_sam'
+function _cvs_upd_sam {
+	FILE=$1
+	if [ "$FILE" == "" ]; then
+		echo ":WARN: Parameter 1 should be a path"
+	else
+		if [[ ! -f "$FILE" ]]; then
+			echo ":WARN: Not existing file: ""$FILE"
+		else
+			echo "...updating file: ""$FILE"
+			cvs -d :ext:aymingcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
+			chown www-data:www-data "$FILE"
+		fi
+	fi
+}
+
 function _function_add_new_above_dummy() {
 	:
 }
@@ -1075,10 +1124,11 @@ wtitle $MY_SERVER
 #fi
 
 export TERMINAL=/usr/bin/alacritty
+# export TERMINAL=/usr/bin/xterm
 export EDITOR=nvim
 export CVSROOT=:extssh:michalmcvs@repo.arubico.com:/srv/cvsroot
 export LC_ALL=C
-PATH=$PATH:/usr/sbin/:/sbin/:~/bin/
+PATH=$PATH:/usr/sbin/:/sbin/:~/bin/:/home/t/cargo/bin/
 export PATH
 export FZF_DEFAULT_OPTS="-m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --history=$HOME/.fzf_history --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview --ansi"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --color=always'
