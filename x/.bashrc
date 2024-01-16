@@ -1076,8 +1076,8 @@ function _setinit()
 	fi
 }
 
-alias upd_sam='upd_sam'
-function upd_sam {
+alias upd_sam='_upd_sam'
+function _upd_sam {
 	FILE=$1
 	if [ "$FILE" == "" ]; then
 		echo ":WARN: Parameter 1 should be a path"
