@@ -1087,7 +1087,9 @@ function _upd_sam {
 		else
 			echo "...updating file: ""$FILE"
 			cvs -d :ext:aymingcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
+			chmod 770 "$FILE"
 			chown www-data:www-data "$FILE"
+			ls -la "$FILE"
 		fi
 	fi
 }
