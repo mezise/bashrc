@@ -1093,7 +1093,7 @@ function _upd_sam {
 	fi
 }
 
-alias upd_sam='_upd_sam'
+alias upd_scr='_upd_scr'
 function _upd_scr {
 	FILE=$1
 	if [ "$FILE" == "" ]; then
