@@ -347,9 +347,9 @@ function _pdfr() {
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 # Weather:
-alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF2'
+# alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF2'
 # alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
-# alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
+alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
 # alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF2'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias spt='speedtest'
@@ -1089,6 +1089,23 @@ function _upd_sam {
 		cvs -d :ext:aymingcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
 		chmod 770 "$FILE"
 		chown www-data:www-data "$FILE"
+		ls -la "$FILE"
+	fi
+}
+
+alias upd_sam='_upd_sam'
+function _upd_scr {
+	FILE=$1
+	if [ "$FILE" == "" ]; then
+		echo ":INFO: Parameter 1 should be a path"
+	else
+		if [[ ! -f "$FILE" ]]; then
+			echo ":WARN: Not existing file: ""$FILE"
+		fi
+		echo "...updating file: ""$FILE"
+		cvs -d :ext:scrcvs@repo.arubico.com:/srv/cvsroot update "$FILE"
+		chmod 770 "$FILE"
+		chown http:http "$FILE"
 		ls -la "$FILE"
 	fi
 }
