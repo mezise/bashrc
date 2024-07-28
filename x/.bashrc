@@ -44,6 +44,8 @@ alias g='grep --color=auto'
 alias eg='grep -E --color=auto'
 alias fg='grep -F --color=auto'
 alias certi='openssl x509 -text -noout -in'
+alias certider='openssl x509 -inform pem -text -noout -in'
+alias certipem='openssl x509 -inform der -text -noout -in'
 function _du10 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
@@ -120,6 +122,7 @@ alias pik='pikaur'
 alias pikrem='pikaur -Rcs'
 alias piki='pikaur -Si'
 alias pikii='pikaur -Qi'
+alias pikf='pacman -Ql'
 alias upd='pikaur -Syu'
 alias updr='pikaur -Syuo'
 alias upda='pikaur -Syua'
@@ -138,6 +141,15 @@ alias sys='inxi -Fxxxz'
 alias por='nc -vz'
 alias port='nc -vz'
 alias ports='netstat -tulpn'
+##
+alias mirror='pacman-mirrors' # list my mirrors
+alias mirror-set-fast='sudo pacman-mirrors --fasttrack 5'
+##
+alias checksum0_md5sum='md5sum'
+alias checksum1_sha1sum='sha1sum'
+alias checksum2_sha256sum='sha256sum'
+alias checksum5_sha512sum='sha512sum'
+##
 
 ## DOCKER:
 _DOCKER_COMPOSE_CMD='docker compose'
@@ -334,6 +346,7 @@ alias aw='awmtt start -B /usr/local/bin/awesomegit -C ~/x/awesomeN_rc.lua -S 130
 alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
+alias cc='vscodium'
 alias pdfr='_pdfr'
 function _pdfr() {
 	FILE_IN=$1
@@ -348,10 +361,11 @@ function _pdfr() {
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 # Weather:
 # alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF2'
-# alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
-alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
+alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
+# alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
 # alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF2'
 alias wifi='nmcli dev wifi list --rescan yes'
+alias wififreq='sudo wpa_cli status | grep freq'
 alias spt='speedtest'
 
 alias cdf=_cdf
@@ -946,7 +960,11 @@ function cvsupd() {
 function cvsupdn() {
 	cvsg -n update -d -P $@
 }
-function lastfiles() {
+function _last_installed() {
+	tac /var/log/pacman.log | grep -i "] installed"  | more
+}
+alias lastfiles='_last_files'
+function _last_files() {
 	MYNR=$1
 	if [ "$MYNR" == "" ]; then
 		MYNR=10
@@ -959,7 +977,8 @@ function lastfiles() {
 	echo - !!! Find last $MYNR files in $MYPATH path [!www_write !CVS] !!! -
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
-function firstfiles() {
+alias firstfiles='_first_files'
+function _first_files() {
 	MYNR=$1
 	if [ "$MYNR" == "" ]; then
 		MYNR=10
@@ -1146,8 +1165,19 @@ export TERMINAL=/usr/bin/alacritty
 export EDITOR=nvim
 export CVSROOT=:extssh:michalmcvs@repo.arubico.com:/srv/cvsroot
 export LC_ALL=C
-PATH=$PATH:/usr/sbin/:/sbin/:~/bin/:/home/t/cargo/bin/
+#
+export QT_QPA_PLATFORMTHEME=qt5ct
+export ANDROID_HOME=~/Android/Sdk/
+export ANDROID_SDK_ROOT=~/Android/Sdk/
+# Set PATH:
+PATH=~/bin/:/home/t/cargo/bin/:/usr/sbin/:/sbin/\
+:${ANDROID_HOME}tools/:${ANDROID_HOME}platform-tools/\
+:$PATH\
+""
 export PATH
+# Remove duplicates from PATH:
+if [[ -x /usr/bin/awk ]]; then export PATH=`printf %s "$PATH" | awk -v RS=: '{ if (!arr[$0]++) {printf("%s%s",!ln++?"":":",$0)}}'` ; fi
+#
 export FZF_DEFAULT_OPTS="-m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --history=$HOME/.fzf_history --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview --ansi"
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --color=always'
 export DUPLICACY_SSH_KEY_FILE='/root/.ssh/id_rsa'
