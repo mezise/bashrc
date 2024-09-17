@@ -137,10 +137,11 @@ alias updr2='paru -Syu --repo'
 alias upda2='paru -Syu --aur'
 alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
-alias sys='inxi -Fxxxz'
+alias sys='inxi -Fxxxzm'
 alias por='nc -vz'
 alias port='nc -vz'
 alias ports='netstat -tulpn'
+alias dns='dig any'
 ##
 alias mirror='pacman-mirrors' # list my mirrors
 alias mirror-set-fast='sudo pacman-mirrors --fasttrack 5'
