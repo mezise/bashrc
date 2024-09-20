@@ -539,16 +539,6 @@ function _isreboot() {
 	fi
 }
 
-function _get_rand_str()
-{
-	CNT=$1
-	if [ "$PAR1" == "" ]; then
-		CNT=20
-	fi
-	RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c${1:-$CNT}`
-	echo $RAND
-}
-
 function replace() {
 	var1=$1
 	var2=$2
@@ -1043,11 +1033,23 @@ function _get_cur_dir_md5()
 	echo "$(pwd -P | md5sum | awk '{print $1}')"
 }
 
+function _get_rand_str()
+{
+	CNT=$1
+	if [ "$PAR1" == "" ]; then
+		CNT=20
+	fi
+	RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c${1:-$CNT}`
+	echo $RAND
+}
+
 alias _init='_init'
 function _init()
 {
 	_USER=michalm
-	_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+	# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+	RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
+	_TMPREPODIR=/tmp/bashrc.$RAND
 
 	git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
 	$_SUDO mkdir -p /home/$_USER/xx
@@ -1057,7 +1059,8 @@ function _init()
 
 	grep -qF "source /home/$_USER/xx/.bashrc" /home/$_USER/.bashrc \
 		|| echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
-	_rrb
+	# _rrb
+	source /home/$_USER/.bashrc ;
 }
 
 alias _setinit='_setinit'
