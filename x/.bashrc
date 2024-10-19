@@ -1046,29 +1046,52 @@ function _get_rand_str()
 	echo $RAND
 }
 
+function _check()
+{
+	if [ ! $(grep -c "^$_USER:" /etc/passwd) -eq 0 ]; then
+		echo "::OK - user [$_USER] exists."
+	else
+		echo "::ERROR - user [$_USER] does not exist."
+	fi
+}
+
 alias _init='_init'
 function _init()
 {
+	$_USERTMP=michalm
+
 	if [ "`hostname`" == "box" ]; then
+
 		_setinit
+
 	else
+		if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
+
+			echo ::CREATE user [$_USERTMP].
+
+			groupadd -g 1000 $_USERTMP
+			useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
+			passwd $_USERTMP
+
+		fi
+
 		echo ::DOWNLOAD INIT FILES.
 
-		_USER=michalm
 		# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 		RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
 		_TMPREPODIR=/tmp/bashrc.$RAND
 
 		git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
-		$_SUDO mkdir -p /home/$_USER/xx
-		$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USER/xx/
+		$_SUDO mkdir -p /home/$_USERTMP/xx
+		$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
 		\rm -rf $_TMPREPODIR
-		$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
+		$_SUDO chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
 
-		grep -qF "source /home/$_USER/xx/.bashrc" /home/$_USER/.bashrc \
-			|| echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
+		grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
+			|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
 		# _rrb
-		source /home/$_USER/.bashrc ;
+		source /home/$_USERTMP/.bashrc ;
+
 	fi
 }
 
@@ -1076,6 +1099,7 @@ alias _setinit='_setinit'
 function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
+
 		echo ::UPLOAD INIT FILES.
 
 		_CURDIR=`pwd -P`
@@ -1105,8 +1129,11 @@ function _setinit()
 		\rm -rf $_TMPREPODIR
 
 		cd $_CURDIR
+
 	else
+
 		echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
+
 	fi
 }
 
