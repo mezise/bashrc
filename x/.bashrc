@@ -46,6 +46,7 @@ alias fg='grep -F --color=auto'
 alias certi='openssl x509 -text -noout -in'
 alias certider='openssl x509 -inform pem -text -noout -in'
 alias certipem='openssl x509 -inform der -text -noout -in'
+alias disk='sudo lsblk -f ; echo ; sudo fdisk -l ; echo'
 function _du10 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
@@ -57,6 +58,7 @@ alias file_du='_file_du'
 alias file_del='_file_del'
 alias ping='ping -c 2'
 alias mc='mc -a'
+alias path='namei -l'
 alias sshp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
 alias shp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
 alias sh='ssh'
@@ -137,7 +139,8 @@ alias updr2='paru -Syu --repo'
 alias upda2='paru -Syu --aur'
 alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
-alias sys='inxi -Fxxxzm'
+# alias sys='sudo inxi -Fxxxzm'
+alias sys='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
 alias por='nc -vz'
 alias port='nc -vz'
 alias ports='netstat -tulpn'
@@ -361,10 +364,10 @@ function _pdfr() {
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 # Weather:
-# alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF2'
-alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF2'
-# alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF2'
-# alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF2'
+# alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF3'
+# alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF3'
+alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF3'
+# alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF3'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias wififreq='sudo wpa_cli status | grep freq'
 alias spt='speedtest'
@@ -1189,9 +1192,10 @@ export DUPLICACY_SSH_KEY_FILE='/root/.ssh/id_rsa'
 export RUSTUP_HOME=/home/t/rustup
 export CARGO_HOME=/home/t/cargo
 export CARGO_TARGET_DIR=/home/t/target
-export CARGO_BUILD_JOBS=-1
+export CARGO_BUILD_JOBS=2
 export SCCACHE_DIR=/home/t/sccache
 export RUSTC_WRAPPER=sccache
+export BINSTALL_DISABLE_TELEMETRY=true
 # End.
 
 # export LANG=en_CA.utf8
