@@ -1058,13 +1058,14 @@ function _check()
 alias _init='_init'
 function _init()
 {
-	$_USERTMP=michalm
+	_USERTMP=michalm
 
 	if [ "`hostname`" == "box" ]; then
 
 		_setinit
 
 	else
+
 		if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
 
 			echo ::CREATE user [$_USERTMP].
