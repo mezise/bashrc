@@ -1062,12 +1062,11 @@ function _init()
 	if [ "`hostname`" == "box" ]; then
 		_setinit
 	else
-		if [ $(id -u) = 0 ]; then
-			# ROOT/SUDO user
-			if ! command -v sudo 2>&1 > /dev/null; then
-				echo ::INSTALL [sudo].
-				pacman -S sudo
-			fi
+		if ! command -v sudo 2>&1 > /dev/null; then
+			echo ::INSTALL [sudo].
+			pacman -S sudo
+		fi
+		if command -v sudo 2>&1 > /dev/null; then
 			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
 				cd /home/$_USERTMP/
 				ln -s xx/.xscreenrc .screenrc
