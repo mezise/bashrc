@@ -1072,11 +1072,11 @@ function _init()
 			fi
 			if ! command -v sudo 2>&1 > /dev/null; then
 				echo ::INSTALL [sudo].
-				pacman -S --noconfirm sudo
+				pacman -S sudo
 			fi
 			if ! command -v git 2>&1 > /dev/null; then
 				echo ::INSTALL [git].
-				pacman -S --noconfirm git
+				pacman -S git
 			fi
 		fi
 		if ! command -v git 2>&1 > /dev/null; then
