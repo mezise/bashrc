@@ -1078,6 +1078,10 @@ function _init()
 				echo ::INSTALL [screen].
 				pacman -S screen
 			fi
+			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
+				cd /home/$_USERTMP/
+				ln -s xx/.xscreenrc .screenrc
+			fi
 			if ! command -v sudo 2>&1 > /dev/null; then
 				echo ::INSTALL [sudo].
 				pacman -S sudo
