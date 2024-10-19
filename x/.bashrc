@@ -1059,40 +1059,45 @@ alias _init='_init'
 function _init()
 {
 	_USERTMP=michalm
-
 	if [ "`hostname`" == "box" ]; then
-
 		_setinit
-
 	else
-
-		if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
-
-			echo ::CREATE user [$_USERTMP].
-
-			groupadd -g 1000 $_USERTMP
-			useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
-			passwd $_USERTMP
-
+		if [ $(id -u) = 0 ]; then
+			# ROOT/SUDO user
+			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
+				echo ::ADD user [$_USERTMP].
+				groupadd -g 1000 $_USERTMP
+				useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
+				passwd $_USERTMP
+			fi
+			if [ ! command -v sudo 2>&1 >/dev/null ]; then
+				echo ::INSTALL [sudo].
+				pacman -S --noconfirm sudo
+			fi
+			if [ ! command -v git 2>&1 >/dev/null ]; then
+				echo ::INSTALL [git].
+				pacman -S --noconfirm git
+			fi
 		fi
-
-		echo ::DOWNLOAD INIT FILES.
-
-		# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-		RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
-		_TMPREPODIR=/tmp/bashrc.$RAND
-
-		git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
-		$_SUDO mkdir -p /home/$_USERTMP/xx
-		$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
-		\rm -rf $_TMPREPODIR
-		$_SUDO chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
-
-		grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
-			|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
-		# _rrb
-		source /home/$_USERTMP/.bashrc ;
-
+		if [ ! command -v git 2>&1 >/dev/null ]; then
+			echo ::ERROR - [git] programm is not installed.
+		else
+			echo ::DOWNLOAD INIT FILES.
+			# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+			RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
+			_TMPREPODIR=/tmp/bashrc.$RAND
+			#
+			git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
+			mkdir -p /home/$_USERTMP/xx
+			\cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
+			\rm -rf $_TMPREPODIR
+			chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
+			#
+			grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
+				|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
+			# _rrb
+			source /home/$_USERTMP/.bashrc ;
+		fi
 	fi
 }
 
@@ -1100,22 +1105,21 @@ alias _setinit='_setinit'
 function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
-
 		echo ::UPLOAD INIT FILES.
-
+		#
 		_CURDIR=`pwd -P`
-
+		#
 		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 		# _TMPREPODIR=/tmp/bashrc.111
-
+		#
 		_FILES=()
 		_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
 		_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
 		_FILES+=( /home/$_USER/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
-
+		#
 		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
 		cd $_TMPREPODIR
-
+		#
 		for row in ${_FILES[@]};
 		do
 			_FILE_SOURCE=${row%%,*}
@@ -1123,18 +1127,15 @@ function _setinit()
 			$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
 			git add $_FILE_TARGET
 		done
-
+		#
 		git commit -a -m 'autocommit'
 		git push -u -f origin master
-
+		#
 		\rm -rf $_TMPREPODIR
-
+		#
 		cd $_CURDIR
-
 	else
-
 		echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
-
 	fi
 }
 
