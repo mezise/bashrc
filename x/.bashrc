@@ -1086,6 +1086,10 @@ function _init()
 				echo ::INSTALL [screen].
 				sudo pacman -S screen
 			fi
+			if ! command -v nvim 2>&1 > /dev/null; then
+				echo ::INSTALL [nvim/neovim].
+				sudo pacman -S neovim
+			fi
 			if ! command -v pikaur 2>&1 > /dev/null; then
 				echo ::INSTALL [pikaur].
 				mkdir -p /tmp/pikaur_install
