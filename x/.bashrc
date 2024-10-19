@@ -1049,27 +1049,35 @@ function _get_rand_str()
 alias _init='_init'
 function _init()
 {
-	_USER=michalm
-	# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-	RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
-	_TMPREPODIR=/tmp/bashrc.$RAND
+	if [ "`hostname`" == "box" ]; then
+		_setinit
+	else
+		echo ::DOWNLOAD INIT FILES.
 
-	git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
-	$_SUDO mkdir -p /home/$_USER/xx
-	$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USER/xx/
-	\rm -rf $_TMPREPODIR
-	$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
+		_USER=michalm
+		# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+		RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
+		_TMPREPODIR=/tmp/bashrc.$RAND
 
-	grep -qF "source /home/$_USER/xx/.bashrc" /home/$_USER/.bashrc \
-		|| echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
-	# _rrb
-	source /home/$_USER/.bashrc ;
+		git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
+		$_SUDO mkdir -p /home/$_USER/xx
+		$_SUDO \cp -af $_TMPREPODIR/x/. /home/$_USER/xx/
+		\rm -rf $_TMPREPODIR
+		$_SUDO chown -R $_USER:$_USER /home/$_USER/xx
+
+		grep -qF "source /home/$_USER/xx/.bashrc" /home/$_USER/.bashrc \
+			|| echo "source /home/$_USER/xx/.bashrc" >> /home/$_USER/.bashrc
+		# _rrb
+		source /home/$_USER/.bashrc ;
+	fi
 }
 
 alias _setinit='_setinit'
 function _setinit()
 {
 	if [ "`hostname`" == "box" ]; then
+		echo ::UPLOAD INIT FILES.
+
 		_CURDIR=`pwd -P`
 
 		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
@@ -1098,7 +1106,7 @@ function _setinit()
 
 		cd $_CURDIR
 	else
-		echo ::INFO: Not a box machine.
+		echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 	fi
 }
 
