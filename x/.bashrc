@@ -1064,29 +1064,39 @@ function _init()
 	else
 		if [ $(id -u) = 0 ]; then
 			# ROOT/SUDO user
-			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
-				echo ::ADD user [$_USERTMP].
-				groupadd -g 1000 $_USERTMP
-				useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
-				passwd $_USERTMP
-			fi
-			if ! command -v git 2>&1 > /dev/null; then
-				echo ::INSTALL [git].
-				pacman -S git
-			fi
-			if ! command -v screen 2>&1 > /dev/null; then
-				echo ::INSTALL [screen].
-				pacman -S screen
+			if ! command -v sudo 2>&1 > /dev/null; then
+				echo ::INSTALL [sudo].
+				pacman -S sudo
 			fi
 			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
 				cd /home/$_USERTMP/
 				ln -s xx/.xscreenrc .screenrc
 			fi
-			if ! command -v sudo 2>&1 > /dev/null; then
-				echo ::INSTALL [sudo].
-				pacman -S sudo
+			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
+				echo ::ADD user [$_USERTMP].
+				sudo groupadd -g 1000 $_USERTMP
+				sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
+				sudo passwd $_USERTMP
+			fi
+			if ! command -v git 2>&1 > /dev/null; then
+				echo ::INSTALL [git].
+				sudo pacman -S git
+			fi
+			if ! command -v screen 2>&1 > /dev/null; then
+				echo ::INSTALL [screen].
+				sudo pacman -S screen
+			fi
+			if ! command -v pikaur 2>&1 > /dev/null; then
+				echo ::INSTALL [pikaur].
+				mkdir -p /tmp/pikaur_install
+				cd /tmp/pikaur_install
+				sudo pacman -S --needed base-devel git
+				git clone https://aur.archlinux.org/pikaur.git
+				cd pikaur
+				makepkg -fsri
 			fi
 		fi
+		#
 		if ! command -v git 2>&1 > /dev/null; then
 			echo ::ERROR - [git] programm is not installed.
 		else
