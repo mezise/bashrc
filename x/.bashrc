@@ -1070,13 +1070,17 @@ function _init()
 				useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
 				passwd $_USERTMP
 			fi
-			if ! command -v sudo 2>&1 > /dev/null; then
-				echo ::INSTALL [sudo].
-				pacman -S sudo
-			fi
 			if ! command -v git 2>&1 > /dev/null; then
 				echo ::INSTALL [git].
 				pacman -S git
+			fi
+			if ! command -v screen 2>&1 > /dev/null; then
+				echo ::INSTALL [screen].
+				pacman -S screen
+			fi
+			if ! command -v sudo 2>&1 > /dev/null; then
+				echo ::INSTALL [sudo].
+				pacman -S sudo
 			fi
 		fi
 		if ! command -v git 2>&1 > /dev/null; then
