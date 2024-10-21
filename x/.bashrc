@@ -56,10 +56,10 @@ function _disk {
 	sudo fdisk -l
 	echo
 }
-function _du10 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
+function _du10 { sudo find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
-function _du100 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
+function _du100 { sudo find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
 alias du100='_du100'
 alias du2='du100'
 alias file_list='_file_list'
@@ -169,6 +169,20 @@ alias checksum1_sha1sum='sha1sum'
 alias checksum2_sha256sum='sha256sum'
 alias checksum5_sha512sum='sha512sum'
 ##
+
+##ADDNEW:
+function _bench {
+	if ! command -v sysbench 2>&1 > /dev/null; then
+		pacman -S sysbench
+	fi
+	sysbench --test=cpu --cpu-max-prime=20000 run
+	# sysbench cpu --threads=2 run
+	# sysbench memory --memory-block-size=1K --memory-total-size=10G run
+	# sysbench fileio --file-total-size=5G --file-num=5 --file-io-mode=async --file-fsync-freq=0 --file-test-mode=rndrd --file-block-size=4k run
+	# sysbench fileio --file-total-size=5G --file-num=5 --file-io-mode=async --file-fsync-freq=0 --file-test-mode=rndwr --file-block-size=4k run
+	# sysbench fileio --file-total-size=5G --file-num=5 --file-io-mode=async --file-fsync-freq=0 --file-test-mode=seqrd --file-block-size=1M run
+	# sysbench fileio --file-total-size=5G --file-num=5 --file-io-mode=async --file-fsync-freq=0 --file-test-mode=seqwr --file-block-size=1M run
+}
 
 ## DOCKER:
 _DOCKER_COMPOSE_CMD='docker compose'
@@ -533,7 +547,6 @@ function _file_del() {
 	fi
 }
 
-alias isreboot="_isreboot"
 function _get_boot_kernel() {
 	local get_version=0
 	for field in $(file /boot/vmlinuz*); do
@@ -546,13 +559,14 @@ function _get_boot_kernel() {
 		fi
 	done
 }
+alias isreboot="_isreboot"
 function _isreboot() {
 	rc=1
 
 	libs=$(lsof -n +c 0 2> /dev/null | grep 'DEL.*lib' | awk '1 { print $1 ": " $NF }' | sort -u)
 	if [[ -n $libs ]]; then
 		cat <<< $libs
-		echo "# LIBS: reboot required"
+		echo "# LIBS: reboot required."
 		rc=0
 	fi
 
@@ -560,8 +574,12 @@ function _isreboot() {
 	current_kernel=$(_get_boot_kernel)
 	if [[ $active_kernel != $current_kernel ]]; then
 		echo "$active_kernel < $current_kernel"
-		echo "# KERNEL: reboot required"
+		echo "# KERNEL: reboot required."
 		rc=0
+	fi
+
+	if [ $rc -eq 1 ]; then
+		echo "# NOT required."
 	fi
 }
 
