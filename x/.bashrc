@@ -1066,12 +1066,8 @@ function _get_rand_str() {
 	echo $RAND
 }
 
-function _check() {
-	if [ ! $(grep -c "^$_USER:" /etc/passwd) -eq 0 ]; then
-		echo "::OK - user [$_USER] exists."
-	else
-		echo "::ERROR - user [$_USER] does not exist."
-	fi
+function _test() {
+	_USERTMP=michalm
 }
 
 alias _init='_init'
@@ -1136,6 +1132,24 @@ function _init() {
 				|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
 			# _rrb
 			source /home/$_USERTMP/.bashrc ;
+			# =================================================== #
+			# screen #
+			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
+			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
+			if [ $(screen -v | grep -c " 5.") -ne 0 ]; then
+				CAP1=$CAPOLD
+				CAP2=$CAPNEW
+			else
+				CAP1=$CAPNEW
+				CAP2=$CAPOLD
+			fi
+			if [ -f /home/$_USERTMP/.screenrc ]; then
+				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc
+			fi
+			if [ -f /home/$_USERTMP/.screenrc_r ]; then
+				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
+			fi
+			# =================================================== #
 		fi
 	fi
 }
