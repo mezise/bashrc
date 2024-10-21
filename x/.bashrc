@@ -46,7 +46,15 @@ alias fg='grep -F --color=auto'
 alias certi='openssl x509 -text -noout -in'
 alias certider='openssl x509 -inform pem -text -noout -in'
 alias certipem='openssl x509 -inform der -text -noout -in'
-alias disk='sudo lsblk -f ; echo ; sudo fdisk -l ; echo'
+alias disk='_disk'
+alias _disk='_disk'
+function _disk {
+	echo
+	sudo lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
+	echo ; echo
+	sudo fdisk -l
+	echo
+}
 function _du10 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
@@ -139,12 +147,18 @@ alias updr2='paru -Syu --repo'
 alias upda2='paru -Syu --aur'
 alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
-# alias sys='sudo inxi -Fxxxzm'
-alias sys='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
+alias sys='sudo inxi -Fxxxzm'
+alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
 alias por='nc -vz'
 alias port='nc -vz'
 alias ports='netstat -tulpn'
-alias dns='dig any'
+alias dns='host -t ns'
+alias dns1='dig ns'
+alias dns2='_dns2'
+function _dns2 {
+	PAR1=$1
+	dig $PAR1 +trace
+}
 ##
 alias mirror='pacman-mirrors' # list my mirrors
 alias mirror-set-fast='sudo pacman-mirrors --fasttrack 5'
@@ -201,8 +215,7 @@ alias dokdown='_docker_compose down'
 
 alias doki='docker images | sort -k1 -h'
 
-function _docker_compose()
-{
+function _docker_compose() {
 	LAST_ARG=${@: $#}
 	PAR1=$(_dok_checked_last_arg $@)
 	if [ "$PAR1" == "null" ]; then
@@ -235,8 +248,7 @@ function _docker_compose()
 		fi
 	fi
 }
-function _dok_checked_last_arg()
-{
+function _dok_checked_last_arg() {
 	LAST_ARG=${@: $#}
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		RET=null
@@ -251,8 +263,7 @@ function _dok_checked_last_arg()
 	fi
 	echo $RET
 }
-function _dok_show_last_arg_err()
-{
+function _dok_show_last_arg_err() {
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		echo !!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!
 	fi
@@ -261,8 +272,7 @@ function _dok_show_last_arg_err()
 		echo !!! ERROR: $PAR1 IS NOT SUPPORTED ACTION. !!!
 	fi
 }
-function _dok_tmp_compose_file_create()
-{
+function _dok_tmp_compose_file_create() {
 	PAR1=$1
 	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
@@ -280,8 +290,7 @@ function _dok_tmp_compose_file_create()
 	sed -i "/# removeline/d" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	sed -i "/# removeline/d" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
 }
-function _dok_tmp_compose_file_delete()
-{
+function _dok_tmp_compose_file_delete() {
 	PAR1=$1
 	rm -f tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	rm -f tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
@@ -328,9 +337,9 @@ function _dbgn {
 	# awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ;
 	notify-send $@
 }
-alias reboot='systemctl reboot'
+alias reboot='sudo systemctl reboot'
 if [ "`hostname`" == "box" ]; then
-	alias hibernate='systemctl hibernate'
+	alias hibernate='sudo systemctl hibernate'
 	alias stop='poweroff'
 fi
 alias backup='/home/backup/backup.sh'
@@ -342,6 +351,20 @@ alias btonPrev01='sudo systemctl start bluetooth && sleep 1 && n=10; for ((i=1;i
 alias btofPrev01='sudo systemctl stop bluetooth'
 alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
+alias _session='_session'
+function _session() {
+	if ! tmux list-sessions 2> /dev/null | grep -E "^s:" > /dev/null ; then
+		tmux new-session -s s -n michalm 'cd ~michalm/ ; bash -i ; df'
+		tmux new-window  -t s:2 -n dir1 'cd ~michalm/ ; bash -i'
+		tmux send-keys -t s:2 "l" Enter
+		tmux new-window  -t s:3 -n dir2 'cd ~michalm/ ; bash -i'
+		tmux new-window  -t s:4 -n dir3 'cd ~michalm/ ; bash -i'
+		tmux new-window  -t s:5 -n dir4 'cd ~michalm/ ; bash -i'
+		tmux new-window  -t s:6 -n dir5 'cd ~michalm/ ; bash -i'
+		tmux select-window -t s:1
+	fi
+	tmux -2 attach-session -t s
+}
 alias color='grabc ; xdotool getmouselocation --shell'
 alias xkb='~/x/xkb/xkbcomp_my.sh errors'
 alias view='feh'
@@ -396,8 +419,7 @@ function _df {
 	  | _color_output_column 4 1
 }
 
-function _color_output_column()
-{
+function _color_output_column() {
 	vCOL=$1
 	vSTYLE=$2
 
@@ -1031,13 +1053,11 @@ function psm() {
 	fi
 }
 
-function _get_cur_dir_md5()
-{
+function _get_cur_dir_md5() {
 	echo "$(pwd -P | md5sum | awk '{print $1}')"
 }
 
-function _get_rand_str()
-{
+function _get_rand_str() {
 	CNT=$1
 	if [ "$PAR1" == "" ]; then
 		CNT=20
@@ -1046,8 +1066,7 @@ function _get_rand_str()
 	echo $RAND
 }
 
-function _check()
-{
+function _check() {
 	if [ ! $(grep -c "^$_USER:" /etc/passwd) -eq 0 ]; then
 		echo "::OK - user [$_USER] exists."
 	else
@@ -1056,8 +1075,7 @@ function _check()
 }
 
 alias _init='_init'
-function _init()
-{
+function _init() {
 	_USERTMP=michalm
 	if [ "`hostname`" == "box" ]; then
 		_setinit
@@ -1123,8 +1141,7 @@ function _init()
 }
 
 alias _setinit='_setinit'
-function _setinit()
-{
+function _setinit() {
 	if [ "`hostname`" == "box" ]; then
 		echo ::UPLOAD INIT FILES.
 		#
