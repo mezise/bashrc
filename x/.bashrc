@@ -2,6 +2,7 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 _USER=michalm
+_USERTMP=$_USER
 # _OS_R=`lsb_release -rs`
 
 function is_cmd() {
@@ -1149,6 +1150,9 @@ function _init() {
 			if [ -f /home/$_USERTMP/.screenrc_r ]; then
 				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
 			fi
+			# =================================================== #
+			sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
+			sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 			# =================================================== #
 		fi
 	fi
