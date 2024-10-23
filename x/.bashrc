@@ -51,15 +51,15 @@ alias disk='_disk'
 alias _disk='_disk'
 function _disk {
 	echo
-	sudo lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
+	$_SUDO lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
 	echo ; echo
-	sudo fdisk -l
+	$_SUDO fdisk -l
 	echo
 }
-function _du10 { sudo find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
+function _du10 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
-function _du100 { sudo find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
+function _du100 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
 alias du100='_du100'
 alias du2='du100'
 alias file_list='_file_list'
@@ -119,7 +119,6 @@ fi
 
 alias sudo='sudo '
 alias sudoi='sudo -E bash --rcfile ~michalm/.bashrc'
-alias sudoers_all='sudo echo "michalm ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers.d/local'
 alias myip='echo `curl -s http://whatismyip.akamai.com`'
 # alias myip='echo `curl -s http://ipinfo.io/ip`'
 alias ipp='myip'
@@ -150,6 +149,7 @@ alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
 alias sys='sudo inxi -Fxxxzm'
 alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
+alias fire='sudo ufw status verbose numbered'
 alias ports='netstat -tulpn'
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
@@ -319,16 +319,16 @@ alias _log='_log'
 function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		sudo journalctl -r | less
+		$_SUDO journalctl -r | less
 	else
-		# cmd="sudo journalctl -r -o short-iso | grep -E '$PARS' | less"
-		cmd="sudo journalctl -r | grep -E '$PARS' | less"
+		# cmd="$_SUDO journalctl -r -o short-iso | grep -E '$PARS' | less"
+		cmd="$_SUDO journalctl -r | grep -E '$PARS' | less"
 		eval $cmd
 	fi
 }
 alias _log_size='_log_size'
 function _log_size {
-	journalctl --disk-usage
+	$_SUDO journalctl --disk-usage
 }
 function _clear_all {
 	_clear_log
@@ -339,12 +339,12 @@ alias _log_clear='_clear_log'
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
-	&& sudo du -sh /var/cache/pacman/pkg/ \
-	&& sudo du -sh ~/.cache/pikaur/pkg/ \
-	&& sudo paccache -rk1 \
-	&& sudo paccache -rk1 -c ~/.cache/pikaur/pkg/ \
-	&& sudo du -sh /var/cache/pacman/pkg/ \
-	&& sudo du -sh ~/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
+	&& $_SUDO du -sh ~/.cache/pikaur/pkg/ \
+	&& $_SUDO paccache -rk1 \
+	&& $_SUDO paccache -rk1 -c ~/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
+	&& $_SUDO du -sh ~/.cache/pikaur/pkg/ \
 	&& echo "STOP."
 }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
