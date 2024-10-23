@@ -5,7 +5,7 @@ _USER=michalm
 _USERTMP=$_USER
 # _OS_R=`lsb_release -rs`
 
-function is_cmd() {
+function is_cmd {
 	PROG=$1
 	tmp=`which $PROG 2> /dev/null`
 	if [ "$tmp" = "" ]; then
@@ -15,7 +15,7 @@ function is_cmd() {
 	fi
 }
 
-function check_sudo() {
+function check_sudo {
 	_SUDO=sudo
 	if ! is_cmd $_SUDO; then
 		_SUDO=''
@@ -150,9 +150,9 @@ alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
 alias sys='sudo inxi -Fxxxzm'
 alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
-alias por='nc -vz'
-alias port='nc -vz'
 alias ports='netstat -tulpn'
+alias port='nc -vz' # netcat package
+alias por='nc -vz'
 alias dns='host -t ns'
 alias dns1='dig ns'
 alias dns2='_dns2'
@@ -160,6 +160,7 @@ function _dns2 {
 	PAR1=$1
 	dig $PAR1 +trace
 }
+alias trace='traceroute'
 ##
 alias mirror='pacman-mirrors' # list my mirrors
 alias mirror-set-fast='sudo pacman-mirrors --fasttrack 5'
@@ -230,7 +231,7 @@ alias dokdown='_docker_compose down'
 
 alias doki='docker images | sort -k1 -h'
 
-function _docker_compose() {
+function _docker_compose {
 	LAST_ARG=${@: $#}
 	PAR1=$(_dok_checked_last_arg $@)
 	if [ "$PAR1" == "null" ]; then
@@ -263,7 +264,7 @@ function _docker_compose() {
 		fi
 	fi
 }
-function _dok_checked_last_arg() {
+function _dok_checked_last_arg {
 	LAST_ARG=${@: $#}
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		RET=null
@@ -278,7 +279,7 @@ function _dok_checked_last_arg() {
 	fi
 	echo $RET
 }
-function _dok_show_last_arg_err() {
+function _dok_show_last_arg_err {
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		echo !!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!
 	fi
@@ -287,7 +288,7 @@ function _dok_show_last_arg_err() {
 		echo !!! ERROR: $PAR1 IS NOT SUPPORTED ACTION. !!!
 	fi
 }
-function _dok_tmp_compose_file_create() {
+function _dok_tmp_compose_file_create {
 	PAR1=$1
 	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
@@ -305,7 +306,7 @@ function _dok_tmp_compose_file_create() {
 	sed -i "/# removeline/d" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	sed -i "/# removeline/d" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
 }
-function _dok_tmp_compose_file_delete() {
+function _dok_tmp_compose_file_delete {
 	PAR1=$1
 	rm -f tmp.scmignore.${_DOCKER_COMPOSE_FILE}
 	rm -f tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
@@ -314,23 +315,29 @@ function _dok_tmp_compose_file_delete() {
 ##
 
 alias log='_log'
-function _log() {
+alias _log='_log'
+function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		journalctl -r | less
+		sudo journalctl -r | less
 	else
-		# cmd="journalctl -r -o short-iso | grep -E '$PARS' | less"
-		cmd="journalctl -r | grep -E '$PARS' | less"
+		# cmd="sudo journalctl -r -o short-iso | grep -E '$PARS' | less"
+		cmd="sudo journalctl -r | grep -E '$PARS' | less"
 		eval $cmd
 	fi
+}
+alias _log_size='_log_size'
+function _log_size {
+	journalctl --disk-usage
 }
 function _clear_all {
 	_clear_log
 	_clear_pacman
 }
 alias log_clear='_clear_log'
+alias _log_clear='_clear_log'
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
-function _clear_pacman() {
+function _clear_pacman {
 	echo "START:" \
 	&& sudo du -sh /var/cache/pacman/pkg/ \
 	&& sudo du -sh ~/.cache/pikaur/pkg/ \
@@ -367,7 +374,7 @@ alias btofPrev01='sudo systemctl stop bluetooth'
 alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
 alias _session='_session'
-function _session() {
+function _session {
 	if ! tmux list-sessions 2> /dev/null | grep -E "^s:" > /dev/null ; then
 		tmux new-session -s s -n michalm 'cd ~michalm/ ; bash -i ; df'
 		tmux new-window  -t s:2 -n dir1 'cd ~michalm/ ; bash -i'
@@ -390,7 +397,7 @@ alias code='vscodium'
 alias co='vscodium'
 alias cc='vscodium'
 alias pdfr='_pdfr'
-function _pdfr() {
+function _pdfr {
 	FILE_IN=$1
 	FILE_OUT="${FILE_IN%.pdf}.out.pdf"
 	FILE_OUT_I="${FILE_IN%.pdf}.info"
@@ -434,7 +441,7 @@ function _df {
 	  | _color_output_column 4 1
 }
 
-function _color_output_column() {
+function _color_output_column {
 	vCOL=$1
 	vSTYLE=$2
 
@@ -459,21 +466,21 @@ function _lg {
 		| grep -E --color $@
 }
 
-function f() {
+function f {
 	if is_cmd fd; then
 		f2 $1
 	else
 		f1 $1
 	fi
 }
-function fc() {
+function fc {
 	if is_cmd fd; then
 		f2c $1
 	else
 		f1c $1
 	fi
 }
-function f1() {
+function f1 {
 	if is_cmd rg; then
 		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null | rg -i $1
 	else
@@ -481,31 +488,31 @@ function f1() {
 	fi
 }
 
-function f1c() {
+function f1c {
 	if is_cmd rg; then
 		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null | rg -i $1
 	else
 		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null
 	fi
 }
-function f2() {
+function f2 {
 	$_SUDO fd --hidden --exclude .git --exclude /timeshift $1
 }
-function f2c() {
+function f2c {
 	$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift $1
 }
-function fl() {
+function fl {
 	$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift $1
 }
 
-function s() {
+function s {
 	if is_cmd rg; then
 		/usr/bin/rg -i --hidden --follow $1
 	else
 		grep -E -Ri "$1" .
 	fi
 }
-function sc() {
+function sc {
 	if is_cmd rg; then
 		/usr/bin/rg --hidden --follow $1
 	else
@@ -513,7 +520,7 @@ function sc() {
 	fi
 }
 
-function _file_list() {
+function _file_list {
 	PARS=$@
 	if [ ! -z "$PARS" ]; then
 		echo "Finding recursively files to list..."
@@ -526,7 +533,7 @@ function _file_list() {
 	fi
 }
 
-function _file_du() {
+function _file_du {
 	PARS=$@
 	if [ ! -z "$PARS" ]; then
 		echo "Finding recursively files to count size..."
@@ -536,7 +543,7 @@ function _file_du() {
 	fi
 }
 
-function _file_del() {
+function _file_del {
 	PARS=$@
 	if [ ! -z "$PARS" ]; then
 		# echo "Deleting recursively files..."
@@ -547,7 +554,7 @@ function _file_del() {
 	fi
 }
 
-function _get_boot_kernel() {
+function _get_boot_kernel {
 	local get_version=0
 	for field in $(file /boot/vmlinuz*); do
 		if [[ $get_version -eq 1 ]]; then
@@ -560,7 +567,7 @@ function _get_boot_kernel() {
 	done
 }
 alias isreboot="_isreboot"
-function _isreboot() {
+function _isreboot {
 	rc=1
 
 	libs=$(lsof -n +c 0 2> /dev/null | grep 'DEL.*lib' | awk '1 { print $1 ": " $NF }' | sort -u)
@@ -583,7 +590,7 @@ function _isreboot() {
 	fi
 }
 
-function replace() {
+function replace {
 	var1=$1
 	var2=$2
 	if [[ -z $var1 || -z $var2 ]]; then
@@ -605,7 +612,7 @@ function replace() {
 	fi
 }
 
-function myphp() {
+function myphp {
 	PAR1=$1
 	if [ "$PAR1" == "" ]; then
 		PAR1=status
@@ -633,7 +640,7 @@ function myphp() {
 		gunzip /home/michalm/t/myphp.tar.gz ; docker load -i /home/michalm/t/myphp.tar ;
 	fi
 }
-function _dok() {
+function _dok {
 	CLIENT=$1
 	ACTION=$2
 	ACTPAR1=$3
@@ -775,7 +782,7 @@ function _dok() {
 		mysql -h 172.20.0.1 -P 3267 --protocol=TCP -u root -p
 	fi
 }
-function mydbd() {
+function mydbd {
 	ACTION=$1
 	CLIENT=mydb
 	if [ "$ACTION" == "" ]; then
@@ -855,7 +862,7 @@ function mydbd() {
 # 		mysql -h 127.0.0.1 -P 3306 --protocol=TCP -u root -p
 # 		mysql -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
 }
-function mydbc() {
+function mydbc {
 	ACTION=$1
 	if [ "$ACTION" == "" ]; then
 		PAR1=status
@@ -889,7 +896,7 @@ function mydbc() {
 		less +G /var/lib/mysql_sandboxes/msb_10_1_40/data/msandbox.err
 	fi
 }
-function mydb() {
+function mydb {
 	if $(systemctl is-active --quiet mydb); then
 		echo [mydbc]
  		mydbc $1 $2
@@ -898,7 +905,7 @@ function mydb() {
 		mydbd $1 $2
 	fi
 }
-function lin() {
+function lin {
 	PAR1=$1
 	if [ "$PAR1" == "" ]; then
 		PAR1=status
@@ -969,7 +976,7 @@ function lin() {
 		docker exec -i lin openfortivpn 188.65.44.58:10443
 	fi
 }
-function cpdirs() {
+function cpdirs {
 	if [ -z "$1" ] || [ -z "$2" ]; then
 		echo ::WRONG FORMAT::
 		echo Usage: cpdirs DIR1 DIR2
@@ -977,29 +984,29 @@ function cpdirs() {
 		rsync -a $1/ $2/ && touch $2/ && du -s $1/ $2/ ;
 	fi
 }
-function cpmih() {
+function cpmih {
 	\cp -f $1 ~michalm/ ; chmod 700 ~michalm/* ; chown michalm ~michalm/* ;
 }
-function cvsdiff() {
+function cvsdiff {
 	cvsr diff -r HEAD $@ | grep -v '^cvs diff: Diffing '
 }
-function cvsg() {
+function cvsg {
 	cvs -d ':extssh:michalmcvs@repo.arubico.com:/srv/cvsroot' $@ 2>&1 | grep --color 'U \|P \|A \|R \|M \|C \|Client:\|Server:\|.* aborted]:\|?DDD '
 }
-function cvsr() {
+function cvsr {
  	cvs -d ':extssh:michalmcvs@repo.arubico.com:/srv/cvsroot' $@ 2>&1
 }
-function cvsupd() {
+function cvsupd {
 	cvsg update -d -P $@
 }
-function cvsupdn() {
+function cvsupdn {
 	cvsg -n update -d -P $@
 }
-function _last_installed() {
+function _last_installed {
 	tac /var/log/pacman.log | grep -i "] installed"  | more
 }
 alias lastfiles='_last_files'
-function _last_files() {
+function _last_files {
 	MYNR=$1
 	if [ "$MYNR" == "" ]; then
 		MYNR=10
@@ -1013,7 +1020,7 @@ function _last_files() {
 	find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -nr | head -n $MYNR | cut -d ' ' -f 2-
 }
 alias firstfiles='_first_files'
-function _first_files() {
+function _first_files {
 	MYNR=$1
 	if [ "$MYNR" == "" ]; then
 		MYNR=10
@@ -1034,19 +1041,19 @@ function _first_files() {
 		find $MYPATH -not \( -name 'www_write' -prune -o -name 'CVS' -prune \) -type f -printf "%T@ %TY-%Tm-%Td %TH:%TM:%.2TS %p\n" | sort -n | head -n $MYNR | cut -d ' ' -f 2-
 	fi
 }
-function diffproj() {
+function diffproj {
 	diff -Nr --brief --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
 }
-function diffproj_() {
+function diffproj_ {
 	diff -Nr --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
 }
-function diffproj2() {
+function diffproj2 {
 	diff -Nr --brief --exclude="www_write" --exclude="CVS" $1 $2
 }
-function diffproj2_() {
+function diffproj2_ {
 	diff -Nr --exclude="www_write" --exclude="CVS" $1 $2
 }
-function grepl() {
+function grepl {
 	# Usage:
 	#   grepl PATTERN [FILE]
 
@@ -1061,10 +1068,10 @@ function grepl() {
 
 	grep -aE --color=always "$1" $2 | grep --color=none -aoE ".{0,$(($control_length_before + $context_length_before))}$1.{0,$(($control_length_after + $context_length_after))}"
 }
-function hping() {
+function hping {
 	hping3 $1 -p $2 -c 2 -S
 }
-function psm() {
+function psm {
 	if [ "$1" == "" ]; then
 		$_SUDO ps_mem
 	else
@@ -1072,11 +1079,11 @@ function psm() {
 	fi
 }
 
-function _get_cur_dir_md5() {
+function _get_cur_dir_md5 {
 	echo "$(pwd -P | md5sum | awk '{print $1}')"
 }
 
-function _get_rand_str() {
+function _get_rand_str {
 	CNT=$1
 	if [ "$PAR1" == "" ]; then
 		CNT=20
@@ -1085,12 +1092,12 @@ function _get_rand_str() {
 	echo $RAND
 }
 
-function _test() {
+function _test {
 	_USERTMP=michalm
 }
 
 alias _init='_init'
-function _init() {
+function _init {
 	_USERTMP=michalm
 	if [ "`hostname`" == "box" ]; then
 		_setinit
@@ -1155,7 +1162,7 @@ function _init() {
 			# screen #
 			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
 			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
-			if [ $(screen -v | grep -c " 5.") -ne 0 ]; then
+			if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
 				CAP1=$CAPOLD
 				CAP2=$CAPNEW
 			else
@@ -1177,7 +1184,7 @@ function _init() {
 }
 
 alias _setinit='_setinit'
-function _setinit() {
+function _setinit {
 	if [ "`hostname`" == "box" ]; then
 		echo ::UPLOAD INIT FILES.
 		#
@@ -1247,7 +1254,7 @@ function _upd_scr {
 	fi
 }
 
-function _function_add_new_above_dummy() {
+function _function_add_new_above_dummy {
 	:
 }
 
