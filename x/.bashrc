@@ -149,7 +149,7 @@ alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
 alias sys='sudo inxi -Fxxxzm'
 alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
-alias fire='sudo ufw status verbose numbered'
+alias fire='sudo ufw status numbered'
 alias ports='netstat -tulpn'
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
