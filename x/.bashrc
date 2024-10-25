@@ -149,7 +149,7 @@ alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
 alias sys='sudo inxi -Fxxxzm'
 alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
-alias fire='sudo ufw status numbered'
+alias fw='sudo ufw status numbered'
 alias ports='netstat -tulpn'
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
@@ -336,8 +336,8 @@ function _clear_all {
 }
 alias log_clear='_log_clear'
 alias _log_clear='_clear_log'
-alias log_ufw='_log_ufw'
-alias _log_ufw="$_SUDO journalctl -r | grep -E 'UFW' | less"
+alias log_fw='_log_fw'
+alias _log_fw="$_SUDO journalctl -r | grep -E 'UFW' | less"
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
