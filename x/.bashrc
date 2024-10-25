@@ -1179,6 +1179,11 @@ function _init {
 				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
 			fi
 			# =================================================== #
+			# vim #
+			if [ -f /home/$_USERTMP/.vimrc ]; then
+				ln -s xx/.vimrc .vimrc
+			fi
+			# =================================================== #
 			sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
 			sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 			# =================================================== #
