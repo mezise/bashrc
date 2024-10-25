@@ -319,11 +319,9 @@ alias _log='_log'
 function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		$_SUDO journalctl -r | less
+		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r
 	else
-		# cmd="$_SUDO journalctl -r -o short-iso | grep -E '$PARS' | less"
-		cmd="$_SUDO journalctl -r | grep -E '$PARS' | less"
-		eval $cmd
+		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r -g $PARS
 	fi
 }
 alias _log_size='_log_size'
@@ -337,7 +335,7 @@ function _clear_all {
 alias log_clear='_log_clear'
 alias _log_clear='_clear_log'
 alias log_fw='_log_fw'
-alias _log_fw="$_SUDO journalctl -r | grep -E 'UFW' | less"
+alias _log_fw="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r -g 'UFW'"
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
