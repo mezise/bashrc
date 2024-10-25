@@ -1180,7 +1180,7 @@ function _init {
 			fi
 			# =================================================== #
 			# vim #
-			if [ -f /home/$_USERTMP/.vimrc ]; then
+			if [ ! -f /home/$_USERTMP/.vimrc ]; then
 				ln -s xx/.vimrc .vimrc
 			fi
 			# =================================================== #
