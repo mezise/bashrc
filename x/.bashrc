@@ -314,6 +314,12 @@ function _dok_tmp_compose_file_delete {
 
 ##
 
+alias _watch='_watch'
+function _watch {
+	PARS=$@
+	eval "watch -n 1 -c -x bash -ic '$PARS'"
+}
+
 alias log='_log'
 alias _log='_log'
 function _log {
