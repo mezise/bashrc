@@ -334,8 +334,10 @@ function _clear_all {
 	_clear_log
 	_clear_pacman
 }
-alias log_clear='_clear_log'
+alias log_clear='_log_clear'
 alias _log_clear='_clear_log'
+alias log_ufw='_log_ufw'
+alias _log_ufw="$_SUDO journalctl -r | grep -E 'UFW' | less"
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
