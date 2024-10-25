@@ -342,6 +342,8 @@ alias log_clear='_log_clear'
 alias _log_clear='_clear_log'
 alias log_fw='_log_fw'
 alias _log_fw="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -r -g 'UFW'"
+alias log_fw_f='_log_fw_f'
+alias _log_fw_f="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -f -g 'UFW'"
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
