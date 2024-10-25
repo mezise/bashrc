@@ -321,7 +321,7 @@ function _log {
 	if [ -z "$PARS" ]; then
 		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r
 	else
-		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r -g $PARS
+		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r -g "$PARS"
 	fi
 }
 alias _log_size='_log_size'
