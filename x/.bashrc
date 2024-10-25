@@ -1286,8 +1286,6 @@ wtitle $MY_SERVER
 #	. /home/michalm/proxy_on.sh
 #fi
 
-stty -icrnl
-
 export TERMINAL=/usr/bin/alacritty
 # export TERMINAL=/usr/bin/xterm
 export EDITOR=nvim
