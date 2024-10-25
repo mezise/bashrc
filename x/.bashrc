@@ -1137,6 +1137,7 @@ function _init {
 				git clone https://aur.archlinux.org/pikaur.git
 				cd pikaur
 				makepkg -fsri
+				cd /home/$_USERTMP/
 			fi
 		fi
 		#
@@ -1284,6 +1285,8 @@ wtitle $MY_SERVER
 #if [ -f /home/michalm/proxy_on.sh ] ; then
 #	. /home/michalm/proxy_on.sh
 #fi
+
+stty -icrnl
 
 export TERMINAL=/usr/bin/alacritty
 # export TERMINAL=/usr/bin/xterm
