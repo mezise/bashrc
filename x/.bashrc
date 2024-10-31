@@ -325,9 +325,9 @@ alias _log='_log'
 function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r # Aded I insensitive
 	else
-		$_SUDO SYSTEMD_LESS='FRXMK' journalctl -r -g "$PARS"
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r -g "$PARS" # Added I insensitive
 	fi
 }
 alias _log_size='_log_size'
@@ -348,11 +348,11 @@ function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
-	&& $_SUDO du -sh ~/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh ~$_USER/.cache/pikaur/pkg/ \
 	&& $_SUDO paccache -rk1 \
-	&& $_SUDO paccache -rk1 -c ~/.cache/pikaur/pkg/ \
+	&& $_SUDO paccache -rk1 -c ~$_USER/.cache/pikaur/pkg/ \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
-	&& $_SUDO du -sh ~/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh ~$_USER/.cache/pikaur/pkg/ \
 	&& echo "STOP."
 }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
@@ -396,10 +396,10 @@ function _session {
 	tmux -2 attach-session -t s
 }
 alias color='grabc ; xdotool getmouselocation --shell'
-alias xkb='~/x/xkb/xkbcomp_my.sh errors'
+alias xkb="~$_USER/x/xkb/xkbcomp_my.sh errors"
 alias view='feh'
 alias o='xdg-open'
-alias aw='awmtt start -B /usr/local/bin/awesomegit -C ~/x/awesomeN_rc.lua -S 1300x720'
+alias aw="awmtt start -B /usr/local/bin/awesomegit -C ~$_USER/x/awesomeN_rc.lua -S 1300x720"
 alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
@@ -443,7 +443,7 @@ function _cdf {
 
 alias df=_df
 function _df {
-	command df -h $@ \
+	command $_SUDO df -h $@ \
 	  | sed -rn "s#^([/|F].*)#\1#p" \
 	  | grep -v '/snap/' \
 	  | _color_output_column 4 1
@@ -1306,10 +1306,10 @@ export CVSROOT=:extssh:michalmcvs@repo.arubico.com:/srv/cvsroot
 export LC_ALL=C
 #
 export QT_QPA_PLATFORMTHEME=qt5ct
-export ANDROID_HOME=~/Android/Sdk/
-export ANDROID_SDK_ROOT=~/Android/Sdk/
+export ANDROID_HOME=~$_USER/Android/Sdk/
+export ANDROID_SDK_ROOT=~$_USER/Android/Sdk/
 # Set PATH:
-PATH=~/bin/:/home/t/cargo/bin/:/usr/sbin/:/sbin/\
+PATH=~$_USER/bin/:/home/t/cargo/bin/:/usr/sbin/:/sbin/\
 :${ANDROID_HOME}tools/:${ANDROID_HOME}platform-tools/\
 :$PATH\
 ""
