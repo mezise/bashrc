@@ -30,7 +30,7 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=never'
-alias l='ls -la --color=auto'
+alias l='ls -la --color=auto --block-size=1'
 # alias lg -> func
 alias rg='/usr/bin/rg --hidden'
 alias rgl='/usr/bin/rg --hidden --follow'
