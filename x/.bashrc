@@ -325,9 +325,9 @@ alias _log='_log'
 function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r # Aded I insensitive
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r --system # Aded I insensitive
 	else
-		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r -g "$PARS" # Added I insensitive
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r --system --case-sensitive=false -g "$PARS" # Added I insensitive
 	fi
 }
 alias _log_size='_log_size'
