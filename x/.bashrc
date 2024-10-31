@@ -56,6 +56,7 @@ function _disk {
 	$_SUDO fdisk -l
 	echo
 }
+alias _disk_delete="$_SUDO shred -v" # sudo shred -v /dev/sdXXX
 function _du10 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
