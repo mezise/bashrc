@@ -148,9 +148,15 @@ alias updr2='paru -Syu --repo'
 alias upda2='paru -Syu --aur'
 alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 ##
-alias sys='sudo inxi -Fxxxzm'
-alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
-alias fw='sudo ufw status numbered'
+alias sys="$_SUDO inxi -Fxxxzm"
+alias sys2="$_SUDO inxi -FxxxzmaJdfiloprujnsZ -t cm"
+alias fw='_fw'
+function _fw {
+	$_SUDO ufw status numbered
+	echo
+	$_SUDO iptables -t nat -L -n -v | grep $(route -n | awk '$1 == "0.0.0.0" {print $8}')
+	echo
+}
 alias ports='_ports'
 function _ports {
 	$_SUDO netstat -tulpn
