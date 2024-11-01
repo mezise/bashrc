@@ -160,8 +160,6 @@ function _fw {
 alias ports='_ports'
 function _ports {
 	$_SUDO netstat -tulpn
-	echo
-	$_SUDO iptables -t nat -L -n -v | grep $(route -n | awk '$1 == "0.0.0.0" {print $8}')
 }
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
