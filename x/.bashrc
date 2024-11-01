@@ -378,10 +378,8 @@ function _dbgn {
 	notify-send $@
 }
 alias reboot='sudo systemctl reboot'
-if [ "`hostname`" == "box" ]; then
-	alias hibernate='sudo systemctl hibernate'
-	alias stop='poweroff'
-fi
+alias hibernate='sudo systemctl hibernate'
+alias stop='sudo systemctl poweroff'
 alias backup='/home/backup/backup.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
 alias fan='systemctl status thinkfan ; sensors | grep --color=never Core'
