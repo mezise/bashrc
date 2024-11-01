@@ -151,7 +151,12 @@ alias updker2='paru -S $(paru -Qsq ^linux | grep -E --color=never ^linux)'
 alias sys='sudo inxi -Fxxxzm'
 alias sys2='sudo inxi -FxxxzmaJdfiloprujnsZ -t cm'
 alias fw='sudo ufw status numbered'
-alias ports='netstat -tulpn'
+alias ports='_ports'
+function _ports {
+	$_SUDO netstat -tulpn
+	echo
+	$_SUDO iptables -t nat -L -n -v | grep $(route -n | awk '$1 == "0.0.0.0" {print $8}')
+}
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
 alias dns='host -t ns'
