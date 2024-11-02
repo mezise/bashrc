@@ -1310,7 +1310,7 @@ wtitle $MY_SERVER
 #if [ -f /home/michalm/proxy_on.sh ] ; then
 #	. /home/michalm/proxy_on.sh
 #fi
-
+export TERM=xterm-256color
 export TERMINAL=/usr/bin/alacritty
 # export TERMINAL=/usr/bin/xterm
 export EDITOR=nvim
