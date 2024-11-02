@@ -1145,15 +1145,17 @@ function _init {
 				echo ::INSTALL [nvim/neovim].
 				sudo pacman -S neovim
 			fi
-			if ! command -v pikaur 2>&1 > /dev/null; then
-				echo ::INSTALL [pikaur].
-				mkdir -p /tmp/pikaur_install
-				cd /tmp/pikaur_install
-				sudo pacman -S --needed base-devel git
-				git clone https://aur.archlinux.org/pikaur.git
-				cd pikaur
-				makepkg -fsri
-				cd /home/$_USERTMP/
+			if [ -f /etc/arch-release ]; then
+				if ! command -v pikaur 2>&1 > /dev/null; then
+					echo ::INSTALL [pikaur].
+					mkdir -p /tmp/pikaur_install
+					cd /tmp/pikaur_install
+					sudo pacman -S --needed base-devel git
+					git clone https://aur.archlinux.org/pikaur.git
+					cd pikaur
+					makepkg -fsri
+					cd /home/$_USERTMP/
+				fi
 			fi
 		fi
 		#
@@ -1198,8 +1200,10 @@ function _init {
 				ln -s xx/.vimrc .vimrc
 			fi
 			# =================================================== #
-			sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
-			sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
+			if [ -f /etc/arch-release ]; then
+				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
+			fi
 			# =================================================== #
 		fi
 	fi
