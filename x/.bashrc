@@ -375,6 +375,7 @@ alias rra='awesome-client "awesome.restart()"'
 alias dbgn='_dbgn'
 function _dbgn {
 	# awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ;
+	# notify-send -t 1000 $@
 	notify-send $@
 }
 alias reboot='sudo systemctl reboot'
@@ -452,7 +453,7 @@ function _cdf {
 alias df=_df
 function _df {
 	command $_SUDO df -h $@ \
-	  | sed -rn "s#^([/|F].*)#\1#p" \
+	  | sed -rn "s#(^[/|F]|:/)#\1#p" \
 	  | grep -v '/snap/' \
 	  | _color_output_column 4 1
 }
