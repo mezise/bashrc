@@ -922,6 +922,17 @@ function mydb {
 		mydbd $1 $2
 	fi
 }
+
+# mygrants --host=HOST --user=root --password=SECRET
+# mygrants --host=HOST --user=root --password=SECRET | mysql --host=HOST2 --user=root --password=SECRET
+function mygrants {
+	mariadb -B -N $@ -e "SELECT DISTINCT CONCAT(
+		'SHOW GRANTS FOR \'', user, '\'@\'', host, '\';'
+		) AS query FROM mysql.user" | \
+	mariadb $@ | \
+	sed 's/\(GRANT .*\)/\1;/;s/^\(Grants for .*\)/## \1 ##/;/##/{x;p;x;}'
+}
+
 function lin {
 	PAR1=$1
 	if [ "$PAR1" == "" ]; then
