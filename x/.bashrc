@@ -31,6 +31,10 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=never'
 alias l='ls -la --color=auto --block-size=1'
+alias l_links='_l_links'
+function _l_links {
+	find ./ -type l -ls
+}
 # alias lg -> func
 alias rg='/usr/bin/rg --hidden'
 alias rgl='/usr/bin/rg --hidden --follow'
@@ -44,9 +48,13 @@ alias fd='fd --hidden --exclude .git'
 alias g='grep --color=auto'
 alias eg='grep -E --color=auto'
 alias fg='grep -F --color=auto'
-alias certi='openssl x509 -text -noout -in'
-alias certider='openssl x509 -inform pem -text -noout -in'
-alias certipem='openssl x509 -inform der -text -noout -in'
+alias _certi='openssl x509 -text -noout -in'
+alias _certi12='_certi12'
+function _certi12 {
+	openssl pkcs12 -legacy -in $1 -info
+}
+alias _certider='openssl x509 -inform pem -text -noout -in'
+alias _certipem='openssl x509 -inform der -text -noout -in'
 alias disk='_disk'
 alias _disk='_disk'
 function _disk {
@@ -335,11 +343,25 @@ alias _log='_log'
 function _log {
 	PARS=$@
 	if [ -z "$PARS" ]; then
-		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r --system # Aded I insensitive
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r --system # Added I insensitive
 	else
 		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -r --system --case-sensitive=false -g "$PARS" # Added I insensitive
 	fi
 }
+alias log_f='_log_f'
+alias _log_f='_log_f'
+function _log_f {
+	PARS=$@
+	if [ -z "$PARS" ]; then
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -f --system # Added I insensitive
+	else
+		$_SUDO SYSTEMD_LESS='FRXMKI' journalctl -f --system --case-sensitive=false -g "$PARS" # Added I insensitive
+	fi
+}
+alias log_fw='_log_fw'
+alias _log_fw="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -r -g 'UFW'"
+alias log_fw_f='_log_fw_f'
+alias _log_fw_f="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -f -g 'UFW'"
 alias _log_size='_log_size'
 function _log_size {
 	$_SUDO journalctl --disk-usage
@@ -350,10 +372,6 @@ function _clear_all {
 }
 alias log_clear='_log_clear'
 alias _log_clear='_clear_log'
-alias log_fw='_log_fw'
-alias _log_fw="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -r -g 'UFW'"
-alias log_fw_f='_log_fw_f'
-alias _log_fw_f="$_SUDO SYSTEMD_LESS='FRXMK' journalctl -t kernel -f -g 'UFW'"
 function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
@@ -796,7 +814,7 @@ function _dok {
 	elif [ "$ACTION" == "load" ]; then
 		gunzip /tmp/$APPNAME.tar.gz ; docker load -i /tmp/$APPNAME.tar ;
 	elif [ "$ACTION" == "logindb" ]; then
-		mysql -h 172.20.0.1 -P 3267 --protocol=TCP -u root -p
+		mariadb -h 172.20.0.1 -P 3267 --protocol=TCP -u root -p
 	fi
 }
 function mydbd {
@@ -869,15 +887,15 @@ function mydbd {
 	elif [ "$ACTION" == "login" ]; then
 		docker exec -it -w /var/lib/mysql/ mydb bash
 	elif [ "$ACTION" == "con" ]; then
-		mysql -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
+		mariadb -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
 	elif [ "$ACTION" == "logs" ]; then
 		docker logs --since 2h --follow mydb
 	fi
 #		apt-update
 #		apt-get install vim
 #		vi /etc/mysql/my.cnf
-# 		mysql -h 127.0.0.1 -P 3306 --protocol=TCP -u root -p
-# 		mysql -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
+# 		mariadb -h 127.0.0.1 -P 3306 --protocol=TCP -u root -p
+# 		mariadb -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
 }
 function mydbc {
 	ACTION=$1
