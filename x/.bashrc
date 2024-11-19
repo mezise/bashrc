@@ -208,8 +208,9 @@ _DOCKER_COMPOSE_CMD='docker compose'
 _DOCKER_PS_FORMAT='table {{" "}}{{.Names}}\t{{.Status}}\t{{.Ports}}'
 # _DOCKER_PS_FORMAT='table'
 export COMPOSE_IGNORE_ORPHANS=true
-_DOCKER_COMPOSE_MODES='["prod", "test", "dev"]'
+_DOCKER_COMPOSE_MODES='["prod", "test", "dev", "dev2"]'
 _DOCKER_COMPOSE_FILE="docker-compose.yml"
+_DOCKER_COMPOSE_FILE_SCMIGN="scmignore.docker-compose.yml"
 alias doc='docker'
 alias docc=$_DOCKER_COMPOSE_CMD
 alias dok='_dok'
@@ -251,83 +252,92 @@ alias doki='docker images | sort -k1 -h'
 
 function _docker_compose {
 	LAST_ARG=${@: $#}
-	PAR1=$(_dok_checked_last_arg $@)
-	if [ "$PAR1" == "null" ]; then
-		EXCEPT_LAST_ARGS=$@
-	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
+	MODE=$(_dok_checked_last_arg $@)
+	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
 		EXCEPT_LAST_ARGS=${@: 1:$#-1}
 	else
 		EXCEPT_LAST_ARGS=$@
 	fi
-	_dok_show_last_arg_err $PAR1
-	echo ::mode:[$PAR1]
-	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" ]]; then
+	echo ::mode:[$MODE]
+	ERR=`_dok_get_last_arg_err $MODE`
+	if [ "$ERR" != "" ]; then
+		echo $ERR
+	fi
+	if [ "$ERR" == "" ]; then
 		_ADD_CMD_ARGS=
-		if [[ "$PAR1" != "prod" ]]; then
-			_ADD_CMD_ARGS+=' -f 'tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-			_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+		if [[ "$MODE" != "prod" ]]; then
+			_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+			_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 			if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
 				_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
 			else
-				_DOCKER_COMPOSE_MODE_FILE=${PAR1}.${_DOCKER_COMPOSE_FILE}
+				_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE}
 				if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
 					_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
 				fi
 			fi
-			_dok_tmp_compose_file_create $PAR1
+			_dok_tmp_compose_file_create $MODE
 		fi
 		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
-		if [[ "$PAR1" != "prod" ]]; then
-			_dok_tmp_compose_file_delete $PAR1
-		fi
+		# if [[ "$MODE" != "prod" ]]; then
+		# 	_dok_tmp_compose_file_delete $MODE
+		# fi
 	fi
 }
 function _dok_checked_last_arg {
+	RET=null
 	LAST_ARG=${@: $#}
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		RET=null
 	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
 		RET=$LAST_ARG
+	# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE} ]]; then
+	# 	RET=$LAST_ARG
+	# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
+	# 	RET=$LAST_ARG
 	else
-		if [ "`hostname`" == "box" ]; then
-			RET=dev
-		else
-			RET=prod
-		fi
+		RET=null
 	fi
 	echo $RET
 }
-function _dok_show_last_arg_err {
+function _dok_get_last_arg_err {
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
-		echo !!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!
+		echo "!!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!"
 	fi
-	PAR1=$1
-	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$PAR1\"" || "$PAR1" == "null" ]]; then
-		echo !!! ERROR: $PAR1 IS NOT SUPPORTED ACTION. !!!
+	LAST_ARG=${@: $#}
+	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
+		# if [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE} ]]; then
+		# 	return
+		# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
+		# 	return
+		# else
+			echo "!!! ERROR: $LAST_ARG IS NOT SUPPORTED MODE. !!!"
+		# fi
 	fi
+	echo ""
 }
 function _dok_tmp_compose_file_create {
-	PAR1=$1
-	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-	_DOCKER_COMPOSE_MODE_FILE=${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	MODE=$1
+	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
-		_DOCKER_COMPOSE_MODE_FILE=${PAR1}.${_DOCKER_COMPOSE_FILE}
+		_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE}
 	fi
 	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
 		echo "" > $_DOCKER_COMPOSE_MODE_FILE
 	fi
-	command cp -pf ${_DOCKER_COMPOSE_MODE_FILE} tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
-	PAR1UPPER=${PAR1^^}
-	sed -i "s|{PROD_|{_${PAR1UPPER}_|g" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-	sed -i "s|# mode_|${PAR1}_|g" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-	sed -i "s|# mode_|${PAR1}_|g" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
-	sed -i "/# removeline/d" tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-	sed -i "/# removeline/d" tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	command cp -pf ${_DOCKER_COMPOSE_MODE_FILE} tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	MODEUPPER=${MODE^^}
+	sed -i "s|{PROD_|{_${MODEUPPER}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	sed -i "s|# mode_|${MODE}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	sed -i "s|# mode_|${MODE}_|g" tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	sed -i "/# removeline/d" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	sed -i "/# removeline/d" tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 }
 function _dok_tmp_compose_file_delete {
-	PAR1=$1
-	rm -f tmp.scmignore.${_DOCKER_COMPOSE_FILE}
-	rm -f tmp.${PAR1}.scmignore.${_DOCKER_COMPOSE_FILE}
+	MODE=$1
+	rm -f tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	rm -f tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 }
 
 ##
@@ -625,7 +635,7 @@ function _isreboot {
 	fi
 }
 
-function replace {
+function _replace {
 	var1=$1
 	var2=$2
 	if [[ -z $var1 || -z $var2 ]]; then
@@ -1023,11 +1033,29 @@ function lin {
 	fi
 }
 function cpdirs {
-	if [ -z "$1" ] || [ -z "$2" ]; then
+	DIR1=${1%/}
+	DIR2=${2%/}
+	if [ -z "$DIR1" ] || [ -z "$DIR2" ]; then
 		echo ::WRONG FORMAT::
 		echo Usage: cpdirs DIR1 DIR2
 	else
-		rsync -a $1/ $2/ && touch $2/ && du -s $1/ $2/ ;
+		$_SUDO rsync -a $DIR1/ $DIR2/ && touch $DIR2/ && du -s $DIR1/ $DIR2/ ;
+	fi
+}
+function cpfile {
+	DIR1=${1%/}
+	DIR2=${2%/}
+	if [ -z "$DIR1" ] || [ -z "$DIR2" ]; then
+		echo ::WRONG FORMAT::
+		echo Usage: cpone DIR1 DIR2
+	else
+		if [ -f $DIR1 ]; then
+			$_SUDO rsync -a $DIR1 $DIR2 ;
+		elif [ -d $DIR1 ]; then
+			$_SUDO rsync -a --exclude='*' $DIR1/ $DIR2/ ;
+		else
+			echo ::NO SOURCE DIRECTORY/FILE [$DIR1]::
+		fi
 	fi
 }
 function cpmih {
