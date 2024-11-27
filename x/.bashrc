@@ -160,6 +160,8 @@ alias sys="$_SUDO inxi -Fxxxzm"
 alias sys2="$_SUDO inxi -FxxxzmaJdfiloprujnsZ -t cm"
 alias fw='_fw'
 function _fw {
+	$_SUDO ufw status verbose
+	echo
 	$_SUDO ufw status numbered
 	echo
 	$_SUDO iptables -t nat -L -n -v | grep $(route -n | awk '$1 == "0.0.0.0" {print $8}')
@@ -220,6 +222,7 @@ alias dokex='dok ex'
 alias doklogin='_dokl' # Login
 alias dokl='_dokl' # Login
 function _dokl { command docker exec -it $@ bash ; }
+alias doklogs='dok logs'
 alias dokclean='_dokclean'
 function _dokclean {
 	echo ::Remove dangling images and volumes
@@ -278,10 +281,12 @@ function _docker_compose {
 			fi
 			_dok_tmp_compose_file_create $MODE
 		fi
+		# Exec command:
 		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
-		# if [[ "$MODE" != "prod" ]]; then
-		# 	_dok_tmp_compose_file_delete $MODE
-		# fi
+		#
+		if [[ "$MODE" != "prod" ]]; then
+			_dok_tmp_compose_file_delete $MODE
+		fi
 	fi
 }
 function _dok_checked_last_arg {
@@ -311,7 +316,7 @@ function _dok_get_last_arg_err {
 		# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
 		# 	return
 		# else
-			echo "!!! ERROR: $LAST_ARG IS NOT SUPPORTED MODE. !!!"
+			echo "!!! ERROR: $LAST_ARG IS NOT SUPPORTED MODE $_DOCKER_COMPOSE_MODES. !!!"
 		# fi
 	fi
 	echo ""
@@ -447,7 +452,7 @@ function _pdfr {
 	FILE_OUT="${FILE_IN%.pdf}.out.pdf"
 	FILE_OUT_I="${FILE_IN%.pdf}.info"
 	cp "$FILE_IN" /home/company/tmp/recode_pdf/
-	command docker exec pdf bash /opt/recode_pdf/run_recode_pdf.sh "$FILE_IN"
+	command docker exec dev_pdf bash /opt/recode_pdf/run_recode_pdf.sh "$FILE_IN"
 	mv "/home/company/tmp/recode_pdf/$FILE_OUT" "./$FILE_OUT"
 	rm -f "/home/company/tmp/recode_pdf/$FILE_IN"
 	rm -f "/home/company/tmp/recode_pdf/$FILE_OUT_I"
@@ -726,6 +731,8 @@ function _dok {
 		echo ::Remove dangling images and volumes
 		docker images -f 'dangling=true' -q | xargs --no-run-if-empty docker rmi ;
 		docker volume ls -f 'dangling=true' -q  | xargs --no-run-if-empty docker volume rm ;
+	elif [ "$CLIENT" == "logs" ]; then
+		$_DOCKER_COMPOSE_CMD logs -f --tail=50
 	elif [ "$ACTION" == "status" ]; then
 		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1
 	elif [ "$ACTION" == "build" ] || [ "$ACTION" == "recreate" ]; then
