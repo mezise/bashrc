@@ -160,7 +160,7 @@ alias sys="$_SUDO inxi -Fxxxzm"
 alias sys2="$_SUDO inxi -FxxxzmaJdfiloprujnsZ -t cm"
 alias fw='_fw'
 function _fw {
-	$_SUDO ufw status verbose
+	$_SUDO ufw status verbose | grep -E "Status|Logging|Default"
 	echo
 	$_SUDO ufw status numbered
 	echo
