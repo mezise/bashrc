@@ -59,12 +59,23 @@ alias disk='_disk'
 alias _disk='_disk'
 function _disk {
 	echo
-	$_SUDO lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
+	echo ::LSBLK: ; echo
+	# $_SUDO lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
+	$_SUDO lsblk -e 7 -o name,fstype,size,fsused,label,partlabel,mountpoint,uuid,partuuid
 	echo ; echo
+	echo ::BLKID: ; echo
+	$_SUDO blkid
+	echo ; echo
+	echo ::FDISK: ; echo
 	$_SUDO fdisk -l
 	echo
 }
+## Wipe/Clean/Clear disk/free_space:
 alias _disk_delete="$_SUDO shred -v" # sudo shred -v /dev/sdXXX
+# df -m ; 1777710
+# truncate -s 1777610M testfile
+# sync testfile # ???
+# time sudo shred -n 1 testfile
 function _du10 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
@@ -255,13 +266,24 @@ alias doki='docker images | sort -k1 -h'
 
 function _docker_compose {
 	LAST_ARG=${@: $#}
-	MODE=$(_dok_checked_last_arg $@)
-	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
+	MODE=""
+	APPNAME=""
+	CLIENT=""
+	SERVICE=""
+	IFS=- read -r MODE APPNAME <<< $LAST_ARG
+	if [ "$APPNAME" != "" ]; then
+		IFS=_ read -r CLIENT SERVICE <<< $APPNAME
+	fi
+	echo ::MODE:[$MODE], CLIENT:[$CLIENT], SERVICE:[$SERVICE]
+	if [ "$CLIENT" != "" ] && [ "$SERVICE" == "" ]; then
+		echo "!!! ERROR: No SERVICE defined for CLIENT. !!!"
+		return
+	fi
+	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$MODE\"" ]]; then
 		EXCEPT_LAST_ARGS=${@: 1:$#-1}
 	else
 		EXCEPT_LAST_ARGS=$@
 	fi
-	echo ::mode:[$MODE]
 	ERR=`_dok_get_last_arg_err $MODE`
 	if [ "$ERR" != "" ]; then
 		echo $ERR
@@ -282,41 +304,26 @@ function _docker_compose {
 			_dok_tmp_compose_file_create $MODE
 		fi
 		# Exec command:
-		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS
+		echo CMD:[${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE]
+		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE
 		#
 		if [[ "$MODE" != "prod" ]]; then
 			_dok_tmp_compose_file_delete $MODE
 		fi
 	fi
 }
-function _dok_checked_last_arg {
-	RET=null
-	LAST_ARG=${@: $#}
-	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
-		RET=null
-	elif [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
-		RET=$LAST_ARG
-	# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE} ]]; then
-	# 	RET=$LAST_ARG
-	# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
-	# 	RET=$LAST_ARG
-	else
-		RET=null
-	fi
-	echo $RET
-}
 function _dok_get_last_arg_err {
 	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
 		echo "!!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!"
 	fi
-	LAST_ARG=${@: $#}
-	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$LAST_ARG\"" ]]; then
-		# if [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE} ]]; then
+	MODE=$1
+	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$MODE\"" ]]; then
+		# if [[ -f ${MODE}.${_DOCKER_COMPOSE_FILE} ]]; then
 		# 	return
-		# elif [[ -f ${LAST_ARG}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
+		# elif [[ -f ${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
 		# 	return
 		# else
-			echo "!!! ERROR: $LAST_ARG IS NOT SUPPORTED MODE $_DOCKER_COMPOSE_MODES. !!!"
+			echo "!!! ERROR: $MODE IS NOT SUPPORTED MODE $_DOCKER_COMPOSE_MODES. !!!"
 		# fi
 	fi
 	echo ""
