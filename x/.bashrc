@@ -85,7 +85,15 @@ alias du100='_du100'
 alias du2='du100'
 alias sumcol='_sumcol'
 function _sumcol {
-	awk "{sum+=\$$1} END {print sum}"
+	SUM=$(awk "{sum+=\$$1} END {print sum}")
+	if [ "$2" == "k" ]; then
+		SUM=$(awk -v sum=$SUM 'BEGIN { print ( sum / 1024 ) }')" K"
+	elif [ "$2" == "m" ]; then
+		SUM=$(awk -v sum=$SUM 'BEGIN { print ( sum / 1024 / 1024 ) }')" M"
+	elif [ "$2" == "g" ]; then
+		SUM=$(awk -v sum=$SUM 'BEGIN { print ( sum / 1024 / 1024 / 1024 ) }')" G"
+	fi
+	echo $SUM
 }
 alias file_list='_file_list'
 alias file_du='_file_du'
