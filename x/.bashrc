@@ -76,6 +76,7 @@ alias _disk_delete="$_SUDO shred -v" # sudo shred -v /dev/sdXXX
 # truncate -s 1777610M testfile
 # sync testfile # ???
 # time sudo shred -n 1 testfile
+alias du='du --block-size=1'
 function _du10 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
