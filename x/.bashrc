@@ -82,6 +82,10 @@ alias du1='du10'
 function _du100 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
 alias du100='_du100'
 alias du2='du100'
+alias sumcol='_sumcol'
+function _sumcol {
+	awk "{sum+=\$$1} END {print sum}"
+}
 alias file_list='_file_list'
 alias file_du='_file_du'
 alias file_del='_file_del'
@@ -220,6 +224,8 @@ alias checksum0_md5sum='md5sum'
 alias checksum1_sha1sum='sha1sum'
 alias checksum2_sha256sum='sha256sum'
 alias checksum5_sha512sum='sha512sum'
+##
+alias _apache_configtest='apachectl configtest'
 ##
 
 ##ADDNEW:
@@ -418,11 +424,11 @@ function _clear_log { $_SUDO journalctl --vacuum-time=150d ; }
 function _clear_pacman {
 	echo "START:" \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
-	&& $_SUDO du -sh ~$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /home/$_USER/.cache/pikaur/pkg/ \
 	&& $_SUDO paccache -rk1 \
-	&& $_SUDO paccache -rk1 -c ~$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO paccache -rk1 -c /home/$_USER/.cache/pikaur/pkg/ \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
-	&& $_SUDO du -sh ~$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /home/$_USER/.cache/pikaur/pkg/ \
 	&& echo "STOP."
 }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
@@ -432,6 +438,23 @@ alias diffdirs_='diff -Nr $1 $2'
 # DESKTOP:
 GTK_THEME='Adwaita'
 alias rra='awesome-client "awesome.restart()"'
+alias rem='_rem'
+function _rem {
+	PAR1=$1
+	PAR2=$2
+	MSG=REMINDER
+	if [[ "$PAR1" == "" ]]; then
+		PAR1=15m
+		MSG='DEFAULT REMINDER'
+	fi
+	SEP=" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
+	if [[ "$PAR2" != "" ]]; then
+		MSG="${MSG} [${PAR2}]"
+	fi
+	MSG="${SEP} ${MSG} (${PAR1}) ${SEP}"
+	# (&>/dev/null sleep $PAR1 && notify-send -t 5000 -u critical "$MSG" &)
+	(&>/dev/null sleep $PAR1 && notify-send -w -u critical "$MSG" &)
+}
 alias dbgn='_dbgn'
 function _dbgn {
 	# awesome-client "require('naughty').notify({text = '$@', timeout = 3})" ;
@@ -490,6 +513,7 @@ alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_ot
 # alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF3'
 alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF3'
 # alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF3'
+alias wi='nmtui connect'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias wififreq='sudo wpa_cli status | grep freq'
 alias spt='speedtest'
