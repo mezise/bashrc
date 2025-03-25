@@ -505,6 +505,7 @@ alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
 alias cc='vscodium'
+alias hh='helix'
 alias pdfr='_pdfr'
 function _pdfr {
 	FILE_IN=$1
@@ -1328,6 +1329,7 @@ function _init {
 			if [ -f /etc/arch-release ]; then
 				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
 			fi
 			# =================================================== #
 		fi
