@@ -1241,6 +1241,20 @@ function _test {
 alias _init='_init'
 function _init {
 	_USERTMP=michalm
+	# =================================================== #
+	# =================================================== #
+	mkdir -p /home/$_USERTMP/.config/helix/
+	cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
+[editor]
+bufferline = "always"
+mouse = true
+
+[editor.file-picker]
+hidden = false
+deduplicate-links = false
+EOL
+	# =================================================== #
+	# =================================================== #
 	if [ "`hostname`" == "box" ]; then
 		_setinit
 	else
@@ -1331,17 +1345,6 @@ function _init {
 				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
 			fi
-			# =================================================== #
-			mkdir -p /home/$_USERTMP/.config/helix/
-			cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
-[editor]
-bufferline = "always"
-mouse = true
-
-[editor.file-picker]
-hidden = false
-deduplicate-links = false
-EOL
 			# =================================================== #
 		fi
 	fi
