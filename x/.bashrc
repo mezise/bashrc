@@ -505,7 +505,7 @@ alias awr='awmtt stop && aw'
 alias code='vscodium'
 alias co='vscodium'
 alias cc='vscodium'
-alias hh='helix'
+alias hh="helix --config /home/$_USERTMP/.config/helix/config.toml"
 alias pdfr='_pdfr'
 function _pdfr {
 	FILE_IN=$1
@@ -1331,6 +1331,16 @@ function _init {
 				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
 			fi
+			# =================================================== #
+			mkdir -p /home/$_USERTMP/.config/helix/
+			cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
+[editor]
+bufferline = "always"
+mouse = true
+
+[editor.file-picker]
+hidden = false
+EOL
 			# =================================================== #
 		fi
 	fi
