@@ -1340,6 +1340,7 @@ mouse = true
 
 [editor.file-picker]
 hidden = false
+deduplicate-links = false
 EOL
 			# =================================================== #
 		fi
