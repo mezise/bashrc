@@ -1244,9 +1244,10 @@ function _init {
 	PAR1=$1
 	# =================================================== #
 	# =================================================== #
-	echo ::EXEC COMMON INIT.
-	mkdir -p /home/$_USERTMP/.config/helix/
-	cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
+	if [ "$PAR1" == "base_init" ]; then
+		echo ::EXEC COMMON INIT.
+		mkdir -p /home/$_USERTMP/.config/helix/
+		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
 [editor]
 bufferline = "always"
 mouse = true
@@ -1255,11 +1256,50 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
+	fi
+	# =================================================== #
+	# =================================================== #
+	if [ "$PAR1" == "set_init" ]; then
+		if [ "`hostname`" == "box" ]; then
+			echo ::UPLOAD INIT FILES.
+			#
+			_CURDIR=`pwd -P`
+			#
+			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+			# _TMPREPODIR=/tmp/bashrc.111
+			#
+			_FILES=()
+			_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
+			_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
+			_FILES+=( /home/$_USER/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
+			#
+			rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
+			cd $_TMPREPODIR
+			#
+			for row in ${_FILES[@]};
+			do
+				_FILE_SOURCE=${row%%,*}
+				_FILE_TARGET=${row##*,}
+				$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
+				git add $_FILE_TARGET
+			done
+			#
+			git commit -a -m 'autocommit'
+			git push -u -f origin master
+			#
+			\rm -rf $_TMPREPODIR
+			#
+			cd $_CURDIR
+		else
+			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
+		fi
+	fi
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "" ]; then
 		if [ "`hostname`" == "box" ]; then
-			_setinit
+			_init set_init
+			_init base_init
 		else
 			if ! command -v sudo 2>&1 > /dev/null; then
 				echo ::INSTALL [sudo].
@@ -1276,19 +1316,23 @@ EOL
 					sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
 					sudo passwd $_USERTMP
 				fi
-				if ! command -v git 2>&1 > /dev/null; then
-					echo ::INSTALL [git].
-					sudo pacman -S git
-				fi
-				if ! command -v screen 2>&1 > /dev/null; then
-					echo ::INSTALL [screen].
-					sudo pacman -S screen
-				fi
-				if ! command -v nvim 2>&1 > /dev/null; then
-					echo ::INSTALL [nvim/neovim].
-					sudo pacman -S neovim
-				fi
 				if [ -f /etc/arch-release ]; then
+					if ! command -v git 2>&1 > /dev/null; then
+						echo ::INSTALL [git].
+						sudo pacman -S git
+					fi
+					if ! command -v screen 2>&1 > /dev/null; then
+						echo ::INSTALL [screen].
+						sudo pacman -S screen
+					fi
+					if ! command -v nvim 2>&1 > /dev/null; then
+						echo ::INSTALL [nvim/neovim].
+						sudo pacman -S neovim
+					fi
+					if ! command -v helix 2>&1 > /dev/null; then
+						echo ::INSTALL [helix].
+						sudo pacman -S helix
+					fi
 					if ! command -v pikaur 2>&1 > /dev/null; then
 						echo ::INSTALL [pikaur].
 						mkdir -p /tmp/pikaur_install
@@ -1350,46 +1394,16 @@ EOL
 				fi
 				# =================================================== #
 			fi
-			_init par1
+			_init base_init
 		fi
 	fi
+	# =================================================== #
+	# =================================================== #
 }
 
 alias _setinit='_setinit'
 function _setinit {
-	if [ "`hostname`" == "box" ]; then
-		echo ::UPLOAD INIT FILES.
-		#
-		_CURDIR=`pwd -P`
-		#
-		_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-		# _TMPREPODIR=/tmp/bashrc.111
-		#
-		_FILES=()
-		_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
-		_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
-		_FILES+=( /home/$_USER/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
-		#
-		rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
-		cd $_TMPREPODIR
-		#
-		for row in ${_FILES[@]};
-		do
-			_FILE_SOURCE=${row%%,*}
-			_FILE_TARGET=${row##*,}
-			$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
-			git add $_FILE_TARGET
-		done
-		#
-		git commit -a -m 'autocommit'
-		git push -u -f origin master
-		#
-		\rm -rf $_TMPREPODIR
-		#
-		cd $_CURDIR
-	else
-		echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
-	fi
+	_init set_init
 }
 
 alias upd_sam='_upd_sam'
