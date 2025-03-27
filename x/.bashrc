@@ -1227,7 +1227,7 @@ function _get_cur_dir_md5 {
 
 function _get_rand_str {
 	CNT=$1
-	if [ "$PAR1" == "" ]; then
+	if [ "$CNT" == "" ]; then
 		CNT=20
 	fi
 	RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c${1:-$CNT}`
@@ -1241,6 +1241,7 @@ function _test {
 alias _init='_init'
 function _init {
 	_USERTMP=michalm
+	PAR1=$1
 	# =================================================== #
 	# =================================================== #
 	mkdir -p /home/$_USERTMP/.config/helix/
@@ -1255,97 +1256,100 @@ deduplicate-links = false
 EOL
 	# =================================================== #
 	# =================================================== #
-	if [ "`hostname`" == "box" ]; then
-		_setinit
-	else
-		if ! command -v sudo 2>&1 > /dev/null; then
-			echo ::INSTALL [sudo].
-			pacman -S sudo
-		fi
-		if command -v sudo 2>&1 > /dev/null; then
-			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
-				cd /home/$_USERTMP/
-				ln -s xx/.xscreenrc .screenrc
+	if [ "$PAR1" == "" ]; then
+		if [ "`hostname`" == "box" ]; then
+			_setinit
+		else
+			if ! command -v sudo 2>&1 > /dev/null; then
+				echo ::INSTALL [sudo].
+				pacman -S sudo
 			fi
-			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
-				echo ::ADD user [$_USERTMP].
-				sudo groupadd -g 1000 $_USERTMP
-				sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
-				sudo passwd $_USERTMP
-			fi
-			if ! command -v git 2>&1 > /dev/null; then
-				echo ::INSTALL [git].
-				sudo pacman -S git
-			fi
-			if ! command -v screen 2>&1 > /dev/null; then
-				echo ::INSTALL [screen].
-				sudo pacman -S screen
-			fi
-			if ! command -v nvim 2>&1 > /dev/null; then
-				echo ::INSTALL [nvim/neovim].
-				sudo pacman -S neovim
-			fi
-			if [ -f /etc/arch-release ]; then
-				if ! command -v pikaur 2>&1 > /dev/null; then
-					echo ::INSTALL [pikaur].
-					mkdir -p /tmp/pikaur_install
-					cd /tmp/pikaur_install
-					sudo pacman -S --needed base-devel git
-					git clone https://aur.archlinux.org/pikaur.git
-					cd pikaur
-					makepkg -fsri
+			if command -v sudo 2>&1 > /dev/null; then
+				if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
 					cd /home/$_USERTMP/
+					ln -s xx/.xscreenrc .screenrc
+				fi
+				if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
+					echo ::ADD user [$_USERTMP].
+					sudo groupadd -g 1000 $_USERTMP
+					sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
+					sudo passwd $_USERTMP
+				fi
+				if ! command -v git 2>&1 > /dev/null; then
+					echo ::INSTALL [git].
+					sudo pacman -S git
+				fi
+				if ! command -v screen 2>&1 > /dev/null; then
+					echo ::INSTALL [screen].
+					sudo pacman -S screen
+				fi
+				if ! command -v nvim 2>&1 > /dev/null; then
+					echo ::INSTALL [nvim/neovim].
+					sudo pacman -S neovim
+				fi
+				if [ -f /etc/arch-release ]; then
+					if ! command -v pikaur 2>&1 > /dev/null; then
+						echo ::INSTALL [pikaur].
+						mkdir -p /tmp/pikaur_install
+						cd /tmp/pikaur_install
+						sudo pacman -S --needed base-devel git
+						git clone https://aur.archlinux.org/pikaur.git
+						cd pikaur
+						makepkg -fsri
+						cd /home/$_USERTMP/
+					fi
 				fi
 			fi
-		fi
-		#
-		if ! command -v git 2>&1 > /dev/null; then
-			echo ::ERROR - [git] programm is not installed.
-		else
-			echo ::DOWNLOAD INIT FILES.
-			# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-			RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
-			_TMPREPODIR=/tmp/bashrc.$RAND
 			#
-			git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
-			mkdir -p /home/$_USERTMP/xx
-			\cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
-			\rm -rf $_TMPREPODIR
-			chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
-			#
-			grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
-				|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
-			# _rrb
-			source /home/$_USERTMP/.bashrc ;
-			# =================================================== #
-			# screen #
-			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
-			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
-			if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
-				CAP1=$CAPOLD
-				CAP2=$CAPNEW
+			if ! command -v git 2>&1 > /dev/null; then
+				echo ::ERROR - [git] programm is not installed.
 			else
-				CAP1=$CAPNEW
-				CAP2=$CAPOLD
+				echo ::DOWNLOAD INIT FILES.
+				# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+				RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
+				_TMPREPODIR=/tmp/bashrc.$RAND
+				#
+				git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
+				mkdir -p /home/$_USERTMP/xx
+				\cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
+				\rm -rf $_TMPREPODIR
+				chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
+				#
+				grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
+					|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
+				# _rrb
+				source /home/$_USERTMP/.bashrc ;
+				# =================================================== #
+				# screen #
+				CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
+				CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
+				if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
+					CAP1=$CAPOLD
+					CAP2=$CAPNEW
+				else
+					CAP1=$CAPNEW
+					CAP2=$CAPOLD
+				fi
+				if [ -f /home/$_USERTMP/.screenrc ]; then
+					sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc
+				fi
+				if [ -f /home/$_USERTMP/.screenrc_r ]; then
+					sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
+				fi
+				# =================================================== #
+				# vim #
+				if [ ! -f /home/$_USERTMP/.vimrc ]; then
+					ln -s xx/.vimrc .vimrc
+				fi
+				# =================================================== #
+				if [ -f /etc/arch-release ]; then
+					sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
+					sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
+					sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
+				fi
+				# =================================================== #
 			fi
-			if [ -f /home/$_USERTMP/.screenrc ]; then
-				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc
-			fi
-			if [ -f /home/$_USERTMP/.screenrc_r ]; then
-				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
-			fi
-			# =================================================== #
-			# vim #
-			if [ ! -f /home/$_USERTMP/.vimrc ]; then
-				ln -s xx/.vimrc .vimrc
-			fi
-			# =================================================== #
-			if [ -f /etc/arch-release ]; then
-				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
-				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
-				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
-			fi
-			# =================================================== #
+			_init par1
 		fi
 	fi
 }
