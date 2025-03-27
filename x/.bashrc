@@ -1254,6 +1254,7 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
+	echo test1
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "" ]; then
