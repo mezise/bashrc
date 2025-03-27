@@ -1253,18 +1253,41 @@ function _init {
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "base_init" ]; then
-		echo ::EXEC COMMON INIT.
-		mkdir -p /home/$_USERTMP/.config/helix/
-		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
-[editor]
-bufferline = "always"
-mouse = true
-
-[editor.file-picker]
-hidden = false
-deduplicate-links = false
-EOL
+	if [ "$PAR1" == "upload_init" ]; then
+		if [ "`hostname`" == "box" ]; then
+			echo ::UPLOAD INIT FILES.
+			#
+			_CURDIR=`pwd -P`
+			#
+			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+			# _TMPREPODIR=/tmp/bashrc.111
+			#
+			_FILES=()
+			_FILES+=( /home/$_USERTMP/x/.bashrc,$_TMPREPODIR/x/.bashrc )
+			_FILES+=( /home/$_USERTMP/x/.vimrc,$_TMPREPODIR/x/.vimrc )
+			_FILES+=( /home/$_USERTMP/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
+			#
+			rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
+			cd $_TMPREPODIR
+			#
+			for row in ${_FILES[@]};
+			do
+				_FILE_SOURCE=${row%%,*}
+				_FILE_TARGET=${row##*,}
+				$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
+				git add $_FILE_TARGET
+			done
+			#
+			git commit -a -m 'autocommit'
+			git push -u -f origin master
+			#
+			\rm -rf $_TMPREPODIR
+			#
+			cd $_CURDIR
+		else
+			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
+		fi
+		_init base_init
 	fi
 	# =================================================== #
 	# =================================================== #
@@ -1366,41 +1389,18 @@ EOL
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "upload_init" ]; then
-		if [ "`hostname`" == "box" ]; then
-			echo ::UPLOAD INIT FILES.
-			#
-			_CURDIR=`pwd -P`
-			#
-			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-			# _TMPREPODIR=/tmp/bashrc.111
-			#
-			_FILES=()
-			_FILES+=( /home/$_USER/x/.bashrc,$_TMPREPODIR/x/.bashrc )
-			_FILES+=( /home/$_USER/x/.vimrc,$_TMPREPODIR/x/.vimrc )
-			_FILES+=( /home/$_USER/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
-			#
-			rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
-			cd $_TMPREPODIR
-			#
-			for row in ${_FILES[@]};
-			do
-				_FILE_SOURCE=${row%%,*}
-				_FILE_TARGET=${row##*,}
-				$_SUDO \cp -f $_FILE_SOURCE $_FILE_TARGET
-				git add $_FILE_TARGET
-			done
-			#
-			git commit -a -m 'autocommit'
-			git push -u -f origin master
-			#
-			\rm -rf $_TMPREPODIR
-			#
-			cd $_CURDIR
-		else
-			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
-		fi
-		_init base_init
+	if [ "$PAR1" == "base_init" ]; then
+		echo ::EXEC COMMON INIT.
+		mkdir -p /home/$_USERTMP/.config/helix/
+		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
+[editor]
+bufferline = "always"
+mouse = true
+
+[editor.file-picker]
+hidden = false
+deduplicate-links = false
+EOL
 	fi
 	# =================================================== #
 	# =================================================== #
