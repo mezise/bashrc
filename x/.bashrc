@@ -1290,7 +1290,7 @@ function _init {
 		else
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
-		_init "base_init"
+		_init base_init
 	fi
 	# =================================================== #
 	# =================================================== #
