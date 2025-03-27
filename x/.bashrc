@@ -1394,7 +1394,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "base_init" ]; then
-		echo "--par_base:["$PAR1"]"
+		echo "--par_baseStart:["$PAR1"]"
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
@@ -1406,6 +1406,7 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
+	echo "--par_baseStop:["$PAR1"]"
 	fi
 	# =================================================== #
 	# =================================================== #
