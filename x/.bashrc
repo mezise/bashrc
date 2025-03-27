@@ -1244,6 +1244,15 @@ function _init {
 	PAR1=$1
 	# =================================================== #
 	# =================================================== #
+	if [ "$PAR1" == "" ]; then
+		if [ "`hostname`" == "box" ]; then
+			_init upload_init
+		else
+			_init download_init
+		fi
+	fi
+	# =================================================== #
+	# =================================================== #
 	if [ "$PAR1" == "base_init" ]; then
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
@@ -1259,7 +1268,105 @@ EOL
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "set_init" ]; then
+	if [ "$PAR1" == "download_init" ]; then
+		if ! command -v sudo 2>&1 > /dev/null; then
+			echo ::INSTALL [sudo].
+			pacman -S sudo
+		fi
+		if command -v sudo 2>&1 > /dev/null; then
+			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
+				cd /home/$_USERTMP/
+				ln -s xx/.xscreenrc .screenrc
+			fi
+			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
+				echo ::ADD user [$_USERTMP].
+				sudo groupadd -g 1000 $_USERTMP
+				sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
+				sudo passwd $_USERTMP
+			fi
+			if [ -f /etc/arch-release ]; then
+				if ! command -v git 2>&1 > /dev/null; then
+					echo ::INSTALL [git].
+					sudo pacman -S git
+				fi
+				if ! command -v screen 2>&1 > /dev/null; then
+					echo ::INSTALL [screen].
+					sudo pacman -S screen
+				fi
+				if ! command -v nvim 2>&1 > /dev/null; then
+					echo ::INSTALL [nvim/neovim].
+					sudo pacman -S neovim
+				fi
+				if ! command -v helix 2>&1 > /dev/null; then
+					echo ::INSTALL [helix].
+					sudo pacman -S helix
+				fi
+				if ! command -v pikaur 2>&1 > /dev/null; then
+					echo ::INSTALL [pikaur].
+					mkdir -p /tmp/pikaur_install
+					cd /tmp/pikaur_install
+					sudo pacman -S --needed base-devel git
+					git clone https://aur.archlinux.org/pikaur.git
+					cd pikaur
+					makepkg -fsri
+					cd /home/$_USERTMP/
+				fi
+			fi
+		fi
+		#
+		if ! command -v git 2>&1 > /dev/null; then
+			echo ::ERROR - [git] programm is not installed.
+		else
+			echo ::DOWNLOAD INIT FILES.
+			# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
+			RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
+			_TMPREPODIR=/tmp/bashrc.$RAND
+			#
+			git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
+			mkdir -p /home/$_USERTMP/xx
+			\cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
+			\rm -rf $_TMPREPODIR
+			chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
+			#
+			grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
+				|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
+			# _rrb
+			source /home/$_USERTMP/.bashrc ;
+			# =================================================== #
+			# screen #
+			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
+			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
+			if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
+				CAP1=$CAPOLD
+				CAP2=$CAPNEW
+			else
+				CAP1=$CAPNEW
+				CAP2=$CAPOLD
+			fi
+			if [ -f /home/$_USERTMP/.screenrc ]; then
+				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc
+			fi
+			if [ -f /home/$_USERTMP/.screenrc_r ]; then
+				sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
+			fi
+			# =================================================== #
+			# vim #
+			if [ ! -f /home/$_USERTMP/.vimrc ]; then
+				ln -s xx/.vimrc .vimrc
+			fi
+			# =================================================== #
+			if [ -f /etc/arch-release ]; then
+				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
+			fi
+			# =================================================== #
+		fi
+		_init base_init
+	fi
+	# =================================================== #
+	# =================================================== #
+	if [ "$PAR1" == "upload_init" ]; then
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
 			#
@@ -1293,109 +1400,7 @@ EOL
 		else
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
-	fi
-	# =================================================== #
-	# =================================================== #
-	if [ "$PAR1" == "" ]; then
-		if [ "`hostname`" == "box" ]; then
-			_init set_init
-			_init base_init
-		else
-			if ! command -v sudo 2>&1 > /dev/null; then
-				echo ::INSTALL [sudo].
-				pacman -S sudo
-			fi
-			if command -v sudo 2>&1 > /dev/null; then
-				if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
-					cd /home/$_USERTMP/
-					ln -s xx/.xscreenrc .screenrc
-				fi
-				if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
-					echo ::ADD user [$_USERTMP].
-					sudo groupadd -g 1000 $_USERTMP
-					sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
-					sudo passwd $_USERTMP
-				fi
-				if [ -f /etc/arch-release ]; then
-					if ! command -v git 2>&1 > /dev/null; then
-						echo ::INSTALL [git].
-						sudo pacman -S git
-					fi
-					if ! command -v screen 2>&1 > /dev/null; then
-						echo ::INSTALL [screen].
-						sudo pacman -S screen
-					fi
-					if ! command -v nvim 2>&1 > /dev/null; then
-						echo ::INSTALL [nvim/neovim].
-						sudo pacman -S neovim
-					fi
-					if ! command -v helix 2>&1 > /dev/null; then
-						echo ::INSTALL [helix].
-						sudo pacman -S helix
-					fi
-					if ! command -v pikaur 2>&1 > /dev/null; then
-						echo ::INSTALL [pikaur].
-						mkdir -p /tmp/pikaur_install
-						cd /tmp/pikaur_install
-						sudo pacman -S --needed base-devel git
-						git clone https://aur.archlinux.org/pikaur.git
-						cd pikaur
-						makepkg -fsri
-						cd /home/$_USERTMP/
-					fi
-				fi
-			fi
-			#
-			if ! command -v git 2>&1 > /dev/null; then
-				echo ::ERROR - [git] programm is not installed.
-			else
-				echo ::DOWNLOAD INIT FILES.
-				# _TMPREPODIR=/tmp/bashrc.`_get_rand_str`
-				RAND=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c20`
-				_TMPREPODIR=/tmp/bashrc.$RAND
-				#
-				git clone https://github.com/mezise/bashrc.git $_TMPREPODIR
-				mkdir -p /home/$_USERTMP/xx
-				\cp -af $_TMPREPODIR/x/. /home/$_USERTMP/xx/
-				\rm -rf $_TMPREPODIR
-				chown -R $_USERTMP:$_USERTMP /home/$_USERTMP/xx
-				#
-				grep -qF "source /home/$_USERTMP/xx/.bashrc" /home/$_USERTMP/.bashrc \
-					|| echo "source /home/$_USERTMP/xx/.bashrc" >> /home/$_USERTMP/.bashrc
-				# _rrb
-				source /home/$_USERTMP/.bashrc ;
-				# =================================================== #
-				# screen #
-				CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
-				CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
-				if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
-					CAP1=$CAPOLD
-					CAP2=$CAPNEW
-				else
-					CAP1=$CAPNEW
-					CAP2=$CAPOLD
-				fi
-				if [ -f /home/$_USERTMP/.screenrc ]; then
-					sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc
-				fi
-				if [ -f /home/$_USERTMP/.screenrc_r ]; then
-					sed -i "s|$CAP1|$CAP2|" /home/$_USERTMP/.screenrc_r
-				fi
-				# =================================================== #
-				# vim #
-				if [ ! -f /home/$_USERTMP/.vimrc ]; then
-					ln -s xx/.vimrc .vimrc
-				fi
-				# =================================================== #
-				if [ -f /etc/arch-release ]; then
-					sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
-					sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
-					sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
-				fi
-				# =================================================== #
-			fi
-			_init base_init
-		fi
+		_init base_init
 	fi
 	# =================================================== #
 	# =================================================== #
@@ -1403,7 +1408,7 @@ EOL
 
 alias _setinit='_setinit'
 function _setinit {
-	_init set_init
+	_init upload_init
 }
 
 alias upd_sam='_upd_sam'
