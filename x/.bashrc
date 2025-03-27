@@ -1244,6 +1244,7 @@ function _init {
 	PAR1=$1
 	# =================================================== #
 	# =================================================== #
+	echo ::EXEC COMMON INIT.
 	mkdir -p /home/$_USERTMP/.config/helix/
 	cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
 [editor]
@@ -1254,7 +1255,6 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
-	echo test2
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "" ]; then
