@@ -1244,9 +1244,9 @@ function _init {
 	PAR1=$1
 	# =================================================== #
 	# =================================================== #
-	echo "--par_all:["$PAR1"]"
-	if [ "$PAR1" == "" ]; then
-	echo "--par_empty:["$PAR1"]"
+	echo "--par_all:["$1"]"
+	if [ "$1" == "" ]; then
+	echo "--par_empty:["$1"]"
 		if [ "`hostname`" == "box" ]; then
 			_init upload_init
 		else
@@ -1255,8 +1255,8 @@ function _init {
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "upload_init" ]; then
-	echo "--par_upload:["$PAR1"]"
+	if [ "$1" == "upload_init" ]; then
+	echo "--par_upload:["$1"]"
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
 			#
@@ -1294,8 +1294,8 @@ function _init {
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "download_init" ]; then
-	echo "--par_download:["$PAR1"]"
+	if [ "$1" == "download_init" ]; then
+	echo "--par_download:["$1"]"
 		if ! command -v sudo 2>&1 > /dev/null; then
 			echo ::INSTALL [sudo].
 			pacman -S sudo
@@ -1393,8 +1393,8 @@ function _init {
 	fi
 	# =================================================== #
 	# =================================================== #
-	if [ "$PAR1" == "base_init" ]; then
-		echo "--par_baseStart:["$PAR1"]"
+	if [ "$1" == "base_init" ]; then
+		echo "--par_baseStart:["$1"]"
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
@@ -1406,7 +1406,7 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
-	echo "--par_baseStop:["$PAR1"]"
+	echo "--par_baseStop:["$1"]"
 	fi
 	# =================================================== #
 	# =================================================== #
