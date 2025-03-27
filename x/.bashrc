@@ -1244,8 +1244,9 @@ function _init {
 	PAR1=$1
 	# =================================================== #
 	# =================================================== #
-	echo "--par:["$PAR1"]"
+	echo "--par_all:["$PAR1"]"
 	if [ "$PAR1" == "" ]; then
+	echo "--par_empty:["$PAR1"]"
 		if [ "`hostname`" == "box" ]; then
 			_init upload_init
 		else
@@ -1255,6 +1256,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "upload_init" ]; then
+	echo "--par_upload:["$PAR1"]"
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
 			#
@@ -1293,6 +1295,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "download_init" ]; then
+	echo "--par_download:["$PAR1"]"
 		if ! command -v sudo 2>&1 > /dev/null; then
 			echo ::INSTALL [sudo].
 			pacman -S sudo
@@ -1391,6 +1394,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$PAR1" == "base_init" ]; then
+		echo "--par_base:["$PAR1"]"
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
