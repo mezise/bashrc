@@ -121,7 +121,7 @@ alias ver='
 	'
 
 ## Screen:
-alias sss="screen -c /home/michalm/.screenrc_r -S michalm_screen_root -d -RR"
+alias sss="sudo -i -- /bin/bash -c 'screen -c /home/michalm/.screenrc_r -S michalm_screen_root -D -RR ; /bin/bash -l'"
 _IS_SCREEN_FOUND=0
 if [ $(id -u) = 0 ]; then
 	if [ -f /home/michalm/.screenrc_r ]; then
