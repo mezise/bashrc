@@ -1267,6 +1267,7 @@ function _init {
 			_FILES+=( /home/$_USERTMP/x/.bashrc,$_TMPREPODIR/x/.bashrc )
 			_FILES+=( /home/$_USERTMP/x/.vimrc,$_TMPREPODIR/x/.vimrc )
 			_FILES+=( /home/$_USERTMP/x/.xscreenrc,$_TMPREPODIR/x/.xscreenrc )
+			_FILES+=( /home/$_USERTMP/x/.xscreenrc_r,$_TMPREPODIR/x/.xscreenrc_r )
 			#
 			rm -rf $_TMPREPODIR ; git clone git+ssh://git@github.com/mezise/bashrc.git $_TMPREPODIR
 			cd $_TMPREPODIR
@@ -1390,7 +1391,7 @@ function _init {
 			fi
 			if [ ! -f /home/$_USERTMP/.screenrc_r ]; then
 				cd /home/$_USERTMP/
-				cp -p xx/.x2screenrc .screenrc_r
+				ln -s xx/.xscreenrc_r .screenrc_r
 			fi
 			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
 			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
