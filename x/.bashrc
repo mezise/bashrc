@@ -1384,14 +1384,6 @@ function _init {
 			source /home/$_USERTMP/.bashrc ;
 			# =================================================== #
 			# screen #
-			if [ ! -f /home/$_USERTMP/.screenrc ]; then
-				cd /home/$_USERTMP/
-				ln -s xx/.xscreenrc .screenrc
-			fi
-			if [ ! -f /home/$_USERTMP/.screenrc_r ]; then
-				cd /home/$_USERTMP/
-				ln -s xx/.xscreenrc .screenrc_r
-			fi
 			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
 			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
 			if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
