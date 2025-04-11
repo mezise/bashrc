@@ -1311,6 +1311,10 @@ function _init {
 		fi
 		INSTALL_CMD="sudo "$INSTALL_CMD
 		##
+		if [ -d /home/$_USERTMP/t ]; then
+			mkdir -p /home/$_USERTMP/t/
+		fi
+		##
 		if command -v sudo 2>&1 > /dev/null; then
 			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
 				echo ::ADD user [$_USERTMP].
@@ -1330,12 +1334,18 @@ function _init {
 				echo ::INSTALL [nvim/neovim].
 				$INSTALL_CMD neovim
 			fi
+			if ! command -v wget 2>&1 > /dev/null; then
+				echo ::INSTALL [wget].
+				$INSTALL_CMD wget
+			fi
 			if ! command -v helix 2>&1 > /dev/null; then
 				echo ::INSTALL [helix].
 				if [ "$OS" == "debian" ]; then
-					sudo add-apt-repository ppa:maveonair/helix-editor
-					sudo apt update
-					sudo apt install helix
+					cd /home/$_USERTMP/t/ ; wget https://github.com/helix-editor/helix/releases/download/25.01.1/helix_25.1.1-1_amd64.deb
+					sudo apt install ./helix_25.1.1-1_amd64.deb
+					if [ ! -f /usr/bin/helix ]; then
+						sudo ln -s /usr/bin/hx /usr/bin/helix
+					fi
 				else
 					$INSTALL_CMD helix
 				fi
@@ -1374,11 +1384,11 @@ function _init {
 			source /home/$_USERTMP/.bashrc ;
 			# =================================================== #
 			# screen #
-			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
+			if [ ! -f /home/$_USERTMP/.screenrc ]; then
 				cd /home/$_USERTMP/
 				ln -s xx/.xscreenrc .screenrc
 			fi
-			if [[ ! -f /home/$_USERTMP/.screenrc_r ]]; then
+			if [ ! -f /home/$_USERTMP/.screenrc_r ]; then
 				cd /home/$_USERTMP/
 				cp -p xx/.x2screenrc .screenrc_r
 			fi
