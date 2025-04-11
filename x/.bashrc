@@ -1312,10 +1312,6 @@ function _init {
 		INSTALL_CMD="sudo "$INSTALL_CMD
 		##
 		if command -v sudo 2>&1 > /dev/null; then
-			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
-				cd /home/$_USERTMP/
-				ln -s xx/.xscreenrc .screenrc
-			fi
 			if [ $(grep -c "^$_USERTMP:" /etc/passwd) -eq 0 ]; then
 				echo ::ADD user [$_USERTMP].
 				sudo groupadd -g 1000 $_USERTMP
@@ -1336,7 +1332,13 @@ function _init {
 			fi
 			if ! command -v helix 2>&1 > /dev/null; then
 				echo ::INSTALL [helix].
-				$INSTALL_CMD helix
+				if [ "$OS" == "debian" ]; then
+					sudo add-apt-repository ppa:maveonair/helix-editor
+					sudo apt update
+					sudo apt install helix
+				else
+					$INSTALL_CMD helix
+				fi
 			fi
 			if [ "$OS" == "arch" ]; then
 				if ! command -v pikaur 2>&1 > /dev/null; then
@@ -1372,6 +1374,14 @@ function _init {
 			source /home/$_USERTMP/.bashrc ;
 			# =================================================== #
 			# screen #
+			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
+				cd /home/$_USERTMP/
+				ln -s xx/.xscreenrc .screenrc
+			fi
+			if [[ ! -f /home/$_USERTMP/.screenrc_r ]]; then
+				cd /home/$_USERTMP/
+				cp -p xx/.x2screenrc .screenrc_r
+			fi
 			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
 			CAPNEW='caption always "%{= 7;0}%-w%{= 7;67}%n %t%{-}%+w %-="'
 			if [ $(screen -v | grep -c " 4.") -eq 0 ]; then
