@@ -26,6 +26,7 @@ check_sudo
 umask 007
 export CVS_RSH=ssh
 alias vi='nvim' # echo -e "set mouse-=a\nset ts=4 sw=4\nsyntax on\n" > ~/.vimrc;
+alias vv='nvim'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
@@ -474,6 +475,7 @@ alias reboot='sudo systemctl reboot'
 alias hibernate='sudo systemctl hibernate'
 alias stop='sudo systemctl poweroff'
 alias backup='/home/backup/backup.sh'
+alias backup-list='/home/backup/backup-list.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
 alias fan='systemctl status thinkfan ; sensors | grep --color=never Core'
 alias bton='sudo systemctl start bluetooth && bluetoothctl power on && bluetoothctl connect FC:A8:9A:94:AC:44'
@@ -1291,10 +1293,24 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "download_init" ]; then
+		source /etc/os-release
+		if [ "$ID_LIKE" == "" ]; then
+			ID_LIKE=$ID
+		fi
+		OS=$ID_LIKE
+		if [ "$OS" == "arch" ]; then
+			INSTALL_CMD="pacman -S --needed"
+		elif [ "$OS" == "debian" ]; then
+			INSTALL_CMD="apt install"
+		else
+			INSTALL_CMD="echo !NO_INSTALL_CMD!"
+		fi
 		if ! command -v sudo 2>&1 > /dev/null; then
 			echo ::INSTALL [sudo].
-			pacman -S sudo
+			$INSTALL_CMD sudo
 		fi
+		INSTALL_CMD="sudo "$INSTALL_CMD
+		##
 		if command -v sudo 2>&1 > /dev/null; then
 			if [[ ! -f /home/$_USERTMP/.screenrc ]]; then
 				cd /home/$_USERTMP/
@@ -1304,30 +1320,30 @@ function _init {
 				echo ::ADD user [$_USERTMP].
 				sudo groupadd -g 1000 $_USERTMP
 				sudo useradd -u 1000 -m -g $_USERTMP -d /home/$_USERTMP -s /bin/bash $_USERTMP
-				sudo passwd $_USERTMP
+				sudo passwd -l $_USERTMP
 			fi
-			if [ -f /etc/arch-release ]; then
-				if ! command -v git 2>&1 > /dev/null; then
-					echo ::INSTALL [git].
-					sudo pacman -S git
-				fi
-				if ! command -v screen 2>&1 > /dev/null; then
-					echo ::INSTALL [screen].
-					sudo pacman -S screen
-				fi
-				if ! command -v nvim 2>&1 > /dev/null; then
-					echo ::INSTALL [nvim/neovim].
-					sudo pacman -S neovim
-				fi
-				if ! command -v helix 2>&1 > /dev/null; then
-					echo ::INSTALL [helix].
-					sudo pacman -S helix
-				fi
+			if ! command -v git 2>&1 > /dev/null; then
+				echo ::INSTALL [git].
+				$INSTALL_CMD git
+			fi
+			if ! command -v screen 2>&1 > /dev/null; then
+				echo ::INSTALL [screen].
+				$INSTALL_CMD screen
+			fi
+			if ! command -v nvim 2>&1 > /dev/null; then
+				echo ::INSTALL [nvim/neovim].
+				$INSTALL_CMD neovim
+			fi
+			if ! command -v helix 2>&1 > /dev/null; then
+				echo ::INSTALL [helix].
+				$INSTALL_CMD helix
+			fi
+			if [ "$OS" == "arch" ]; then
 				if ! command -v pikaur 2>&1 > /dev/null; then
 					echo ::INSTALL [pikaur].
 					mkdir -p /tmp/pikaur_install
 					cd /tmp/pikaur_install
-					sudo pacman -S --needed base-devel git
+					$INSTALL_CMD base-devel git
 					git clone https://aur.archlinux.org/pikaur.git
 					cd pikaur
 					makepkg -fsri
@@ -1377,7 +1393,7 @@ function _init {
 				ln -s xx/.vimrc .vimrc
 			fi
 			# =================================================== #
-			if [ -f /etc/arch-release ]; then
+			if [ "$OS" == "arch" ]; then
 				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
