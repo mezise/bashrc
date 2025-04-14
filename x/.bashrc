@@ -1402,6 +1402,7 @@ function _init {
 			# =================================================== #
 			# vim #
 			if [ ! -f /home/$_USERTMP/.vimrc ]; then
+				cd /home/$_USERTMP/
 				ln -s xx/.vimrc .vimrc
 			fi
 			# =================================================== #
