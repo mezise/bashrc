@@ -564,7 +564,7 @@ function _color_output_column {
     awk "
         BEGIN {
             FPAT = \"([[:space:]]*[^[:space:]]+)\";
-            OFS = \"\";
+            OFS = \" \";
         }
         {
             \$${vCOL} = \"${vYEL}\" \$${vCOL} \"${vNC}\";
