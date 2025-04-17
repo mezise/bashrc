@@ -782,13 +782,20 @@ function _dok {
 	fi
 	if [ "$CLIENT" == "" ] || [ "$CLIENT" == "list" ]; then
 		echo ::[ACTION: $ACTION \(active\)]
-		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$CLIENT" == "a" ]; then
 		echo ::[ACTION: $ACTION \(all\)]
-		docker ps --format "$_DOCKER_PS_FORMAT" -a | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" -a | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | tail -n +2 | sort ;
+		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$CLIENT" == "ex" ]; then
 		echo ::[ACTION: $ACTION \(exited\)]
-		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" -f "status=exited" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$CLIENT" == "clean" ]; then
 		echo ::[ACTION: $ACTION \(clean\)]
 		echo ::Remove dangling images and volumes
@@ -797,7 +804,9 @@ function _dok {
 	elif [ "$CLIENT" == "logs" ]; then
 		$_DOCKER_COMPOSE_CMD logs -f --tail=50
 	elif [ "$ACTION" == "status" ]; then
-		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" -a -f "NAME=^${APPNAME}$" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$ACTION" == "build" ] || [ "$ACTION" == "recreate" ]; then
 		echo ::Remove dangling images and volumes
 		docker images -f 'dangling=true' -q | xargs --no-run-if-empty docker rmi ;
@@ -857,7 +866,9 @@ function _dok {
 		echo ::Show images
 		docker images ;
 		echo ::Show containers
-		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$ACTION" == "start" ]; then
 		docker start $APPNAME ;
 		docker container ls -a | grep $APPNAME ;
@@ -954,7 +965,9 @@ function mydbd {
 		echo ::Show images
 		docker images ;
 		echo ::Show containers
-		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		# docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | head -n 1 ;
+		docker ps --format "$_DOCKER_PS_FORMAT" | _color_output_column 1 | tail -n +2 | sort ;
 	elif [ "$ACTION" == "start" ]; then
 		docker start mydb ;
 		docker container ls -a | grep 'mydb' ;
