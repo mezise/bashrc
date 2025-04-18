@@ -551,7 +551,7 @@ function _df {
 	command $_SUDO df -h $@ \
 	  | sed -rn "s#(^[/|F]|:/)#\1#p" \
 	  | grep -v '/snap/' \
-	  | grep -v '/boot/efi' \
+	  | grep -v '/boot' \
 	  | _color_output_column 4 1
 }
 
