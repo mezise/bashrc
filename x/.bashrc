@@ -110,6 +110,10 @@ alias sshm='ssh -F /home/michalm/.ssh/config'
 alias scpm='scp -F /home/michalm/.ssh/config'
 alias sh_kim5='sshfs kim5:/ /home/sh_kim5/ -C -o reconnect'
 alias sh_kim5_down='fusermount3 -uz /home/sh_kim5/'
+alias pw1='_pw1'
+function _pw1 {
+	pwgen -r \"\' -ys 53
+}
 # alias fzf="fzf -m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview"
 alias ver='
 	echo - OS: `cat /etc/os-release 2>/dev/null | sed -rn "s/.*PRETTY_NAME=\"(.+)\".*/\1/p"` `if cat /proc/1/cgroup | grep -q --color=never -P "0::.+containerd"; then echo "(DOCKER CONTAINER)"; else echo ""; fi`; \
@@ -218,8 +222,12 @@ function _ports {
 }
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
-alias dns='host -t ns'
-alias dns1='dig ns'
+alias dns='_dns'
+function _dns {
+	dig $1 | grep IN
+	dig -t NS $1 | grep SOA
+}
+alias dns1='host'
 alias dns2='_dns2'
 function _dns2 {
 	PAR1=$1
@@ -482,7 +490,7 @@ alias bton='sudo systemctl start bluetooth && bluetoothctl power on && bluetooth
 alias btof='sudo systemctl stop bluetooth && sleep 2 && awesome-client "awesome.restart()"'
 alias btonPrev01='sudo systemctl start bluetooth && sleep 1 && n=10; for ((i=1;i<=$n;i++)); do if $(bluetoothctl connect FC:A8:9A:94:AC:44 | grep -q "Connection successful"); then echo "OK"; break; else echo "wait ($i/$n)"; sleep 1; fi; done;'
 alias btofPrev01='sudo systemctl stop bluetooth'
-alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
+alias tunkim1=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
 alias _session='_session'
 function _session {
