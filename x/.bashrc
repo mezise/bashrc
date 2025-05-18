@@ -1407,6 +1407,7 @@ function _init {
 			# =================================================== #
 			# screen #
 			if [ ! -f /home/$_USERTMP/.screenrc ]; then
+				cd /home/$_USERTMP/
 				ln -s xx/.xscreenrc .screenrc
 			fi
 			CAPOLD='caption always "%{= kw}%-w%{= BW}%n %t%{-}%+w %-="'
