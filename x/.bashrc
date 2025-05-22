@@ -104,15 +104,21 @@ alias mc='mc -a'
 alias path='namei -l'
 alias sshp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
 alias shp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
+alias shk='ssh-keygen -t ed25519 -C user@tmp -f ./id_tmp'
 alias sh='ssh'
 alias tt='ssh'
 alias sshm='ssh -F /home/michalm/.ssh/config'
 alias scpm='scp -F /home/michalm/.ssh/config'
 alias sh_kim5='sshfs kim5:/ /home/sh_kim5/ -C -o reconnect'
 alias sh_kim5_down='fusermount3 -uz /home/sh_kim5/'
+alias pw0='_pw1 50'
 alias pw1='_pw1'
 function _pw1 {
-	pwgen -r \"\' -ys 53
+	PAR1=$1
+	if [ "$PAR1" == "" ]; then
+		PAR1=53
+	fi
+	pwgen -r \\\"\'\`\<\>\|\@\^\:\,\; -ys $PAR1
 }
 # alias fzf="fzf -m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview"
 alias ver='
@@ -270,6 +276,7 @@ _DOCKER_COMPOSE_FILE="docker-compose.yml"
 _DOCKER_COMPOSE_FILE_SCMIGN="scmignore.docker-compose.yml"
 alias doc='docker'
 alias docc=$_DOCKER_COMPOSE_CMD
+alias dokc=$_DOCKER_COMPOSE_CMD
 alias dok='_dok'
 alias doka='dok a'
 alias dokex='dok ex'
