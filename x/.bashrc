@@ -79,6 +79,7 @@ alias _disk_delete="$_SUDO shred -v" # sudo shred -v /dev/sdXXX
 # time sudo shred -n 1 testfile
 alias du='du --block-size=1'
 function _du10 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
+# function du1 { find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -11 ; }
 alias du10='_du10'
 alias du1='du10'
 function _du100 { $_SUDO find -maxdepth 1 -exec du -hsx $@ "{}" \; | sort -rh | head -101 ; }
@@ -104,6 +105,7 @@ alias mc='mc -a'
 alias path='namei -l'
 alias sshp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
 alias shp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no'
+alias sshk='ssh-keygen -t ed25519 -C user@tmp -f ./id_tmp'
 alias shk='ssh-keygen -t ed25519 -C user@tmp -f ./id_tmp'
 alias sh='ssh'
 alias tt='ssh'
@@ -119,6 +121,14 @@ function _pw1 {
 		PAR1=53
 	fi
 	pwgen -r \\\"\'\`\<\>\|\@\^\:\,\; -ys $PAR1
+}
+alias pw2='_pw2'
+function _pw2 {
+	PAR1=$1
+	if [ "$PAR1" == "" ]; then
+		PAR1=53
+	fi
+	pwgen -r \'\"\@\?\^\&\*\(\)\`\:\~\?\;\:\[\]\{\}\.\,\\\/\|\>\<\#\+\_\=\%\-\$ -cny $PAR1
 }
 # alias fzf="fzf -m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview"
 alias ver='
@@ -229,11 +239,18 @@ function _ports {
 alias port='nc -vz' # netcat package
 alias por='nc -vz'
 alias dns='_dns'
+alias dns1='_dns'
 function _dns {
-	dig $1 | grep IN
-	dig -t NS $1 | grep SOA
+	if [ "$1" == "" ]; then
+		echo ::LOCAL DNS IP:
+		dig archlinux.org | grep ";; SERVER"
+	else
+		echo ::DOMAIN IP:
+		dig $1 | grep IN
+		echo ::DOMAIN DNS SERVERS:
+		dig -t NS $1 | grep IN
+	fi
 }
-alias dns1='host'
 alias dns2='_dns2'
 function _dns2 {
 	PAR1=$1
@@ -277,6 +294,7 @@ _DOCKER_COMPOSE_FILE_SCMIGN="scmignore.docker-compose.yml"
 alias doc='docker'
 alias docc=$_DOCKER_COMPOSE_CMD
 alias dokc=$_DOCKER_COMPOSE_CMD
+alias dokk=$_DOCKER_COMPOSE_CMD
 alias dok='_dok'
 alias doka='dok a'
 alias dokex='dok ex'
@@ -330,6 +348,7 @@ function _docker_compose {
 		echo "!!! ERROR: No SERVICE defined for CLIENT. !!!"
 		return
 	fi
+	# strstr:
 	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$MODE\"" ]]; then
 		EXCEPT_LAST_ARGS=${@: 1:$#-1}
 	else
@@ -476,6 +495,7 @@ function _rem {
 	if [[ "$PAR2" != "" ]]; then
 		MSG="${MSG} [${PAR2}]"
 	fi
+	echo ::Reminder set to: ${PAR1}
 	MSG="${SEP} ${MSG} (${PAR1}) ${SEP}"
 	# (&>/dev/null sleep $PAR1 && notify-send -t 5000 -u critical "$MSG" &)
 	(&>/dev/null sleep $PAR1 && notify-send -w -u critical "$MSG" &)
@@ -499,6 +519,7 @@ alias btonPrev01='sudo systemctl start bluetooth && sleep 1 && n=10; for ((i=1;i
 alias btofPrev01='sudo systemctl stop bluetooth'
 alias tunkim1=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
+alias tunscr=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
 alias _session='_session'
 function _session {
 	if ! tmux list-sessions 2> /dev/null | grep -E "^s:" > /dev/null ; then
@@ -853,6 +874,7 @@ function _dok {
 		echo ::Remove container $APPNAME
 		docker rm --force $APPNAME ;
 		echo ::Create and run container $APPNAME
+		# httpUser=$(if id "udocker" >/dev/null 2>&1; then echo "udocker"; else echo "www-data"; fi) ; echo $httpUser ;
 		if [ "`hostname`" == "box" ]; then
 			options_dev="\
 				-v $p_root/_secure:/share/_secure \
@@ -1552,8 +1574,8 @@ export CVSROOT=:extssh:michalmcvs@repo.arubico.com:/srv/cvsroot
 export LC_ALL=C
 #
 export QT_QPA_PLATFORMTHEME=qt5ct
-export ANDROID_HOME=~$_USER/Android/Sdk/
-export ANDROID_SDK_ROOT=~$_USER/Android/Sdk/
+export ANDROID_HOME=/home/$_USER/Android/Sdk/
+export ANDROID_SDK_ROOT=/home/$_USER/Android/Sdk/
 # Set PATH:
 PATH=~$_USER/bin/:/home/t/cargo/bin/:/usr/sbin/:/sbin/\
 :${ANDROID_HOME}tools/:${ANDROID_HOME}platform-tools/\
