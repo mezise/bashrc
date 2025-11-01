@@ -1329,9 +1329,6 @@ function _synch_scr {
 alias _init='_init'
 function _init {
 	_USERTMP=michalm
-	if [ "$_CURDIR_init" == "" ]; then
-		_CURDIR_init=`pwd -P`
-	fi
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "" ]; then
@@ -1344,10 +1341,9 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "upload_init" ]; then
+		_CURDIR_upload_init=`pwd -P`
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
-			#
-			#
 			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 			# _TMPREPODIR=/tmp/bashrc.111
 			#
@@ -1376,10 +1372,12 @@ function _init {
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
 		_init base_init
+		cd $_CURDIR_upload_init
 	fi
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "download_init" ]; then
+		_CURDIR_download_init=`pwd -P`
 		source /etc/os-release
 		if [ "$ID_LIKE" == "" ]; then
 			ID_LIKE=$ID
@@ -1508,10 +1506,12 @@ function _init {
 			# =================================================== #
 		fi
 		_init base_init
+		cd $_CURDIR_download_init
 	fi
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "base_init" ]; then
+		_CURDIR_base_init=`pwd -P`
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
@@ -1523,12 +1523,10 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
+		cd $_CURDIR_base_init
 	fi
 	# =================================================== #
 	# =================================================== #
-	echo $_CURDIR_init HH
-	cd $_CURDIR_init
-	_CURDIR_init=''
 }
 
 alias _setinit='_setinit'
