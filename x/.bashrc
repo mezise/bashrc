@@ -31,6 +31,7 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=never'
+alias ll='ls -la --color=auto --block-size=1'
 alias l='ls -la --color=auto --block-size=1'
 alias l_links='_l_links'
 function _l_links {
@@ -1289,6 +1290,40 @@ function _get_rand_str {
 
 function _test {
 	_USERTMP=michalm
+}
+
+function _synch_sam {
+	if [ "`hostname`" == "box" ]; then
+		echo '::Synch_sam started' $(date -Is)
+		SRC=/home/michalm/mih/projects/mparker/p_samp_test/src/
+		TRG=sam:/var/www/htmlssl/wwwsamp/prod_cc/src
+		COMMAND=(rsync -avzh --omit-dir-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
+		"${COMMAND[@]}"
+		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
+			"${COMMAND[@]}"
+			echo '::Synch_sam on-change finished' $(date -Is)
+			echo
+		done
+	else
+		echo '::Synch_sam available only on "box"'
+	fi
+}
+
+function _synch_scr {
+	if [ "`hostname`" == "box" ]; then
+		echo '::Synch_scr started' $(date -Is)
+		SRC=/home/michalm/mih/projects/mparker/p_scr_crm_test/src/
+		TRG=scr:/home/company/scr/docker/scrm_data/web_data/htmlssl/scr/prod_cc/src
+		COMMAND=(rsync -avzh --omit-dir-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
+		"${COMMAND[@]}"
+		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
+			"${COMMAND[@]}"
+			echo '::Synch_scr on-change finished' $(date -Is)
+			echo
+		done
+	else
+		echo '::Synch_scr available only on "box"'
+	fi
 }
 
 alias _init='_init'
