@@ -1329,6 +1329,9 @@ function _synch_scr {
 alias _init='_init'
 function _init {
 	_USERTMP=michalm
+	if [ "$_CURDIR_init" == "" ]; then
+		_CURDIR_init=`pwd -P`
+	fi
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "" ]; then
@@ -1344,7 +1347,6 @@ function _init {
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
 			#
-			_CURDIR=`pwd -P`
 			#
 			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 			# _TMPREPODIR=/tmp/bashrc.111
@@ -1370,7 +1372,6 @@ function _init {
 			#
 			\rm -rf $_TMPREPODIR
 			#
-			cd $_CURDIR
 		else
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
@@ -1525,6 +1526,8 @@ EOL
 	fi
 	# =================================================== #
 	# =================================================== #
+	cd $_CURDIR_init
+	_CURDIR_init=''
 }
 
 alias _setinit='_setinit'
