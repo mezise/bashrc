@@ -1341,7 +1341,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "upload_init" ]; then
-		_CURDIR_upload_init=`pwd -P`
+		_CURDIR_upload_init=`pwd`
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
 			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
@@ -1377,7 +1377,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "download_init" ]; then
-		_CURDIR_download_init=`pwd -P`
+		_CURDIR_download_init=`pwd`
 		source /etc/os-release
 		if [ "$ID_LIKE" == "" ]; then
 			ID_LIKE=$ID
@@ -1511,7 +1511,7 @@ function _init {
 	# =================================================== #
 	# =================================================== #
 	if [ "$1" == "base_init" ]; then
-		_CURDIR_base_init=`pwd -P`
+		_CURDIR_base_init=`pwd`
 		echo ::EXEC COMMON INIT.
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
