@@ -101,6 +101,7 @@ function _sumcol {
 alias file_list='_file_list'
 alias file_du='_file_du'
 alias file_del='_file_del'
+alias _hashed_remove_in_projects="find $HOME/mih/projects/mparker/ -type f -regextype egrep -regex ".*\/\.\#.*[0-9]" -print -delete"
 alias ping='ping -c 2'
 alias mc='mc -a'
 alias path='namei -l'
@@ -619,21 +620,21 @@ function _lg {
 
 function f {
 	if is_cmd fd; then
-		f2 $1
+		f2 "$1"
 	else
-		f1 $1
+		f1 "$1"
 	fi
 }
 function fc {
 	if is_cmd fd; then
-		f2c $1
+		f2c "$1"
 	else
-		f1c $1
+		f1c "$1"
 	fi
 }
 function f1 {
 	if is_cmd rg; then
-		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null | rg -i $1
+		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null | rg -i "$1"
 	else
 		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null
 	fi
@@ -641,31 +642,31 @@ function f1 {
 
 function f1c {
 	if is_cmd rg; then
-		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null | rg -i $1
+		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null | rg -i "$1"
 	else
 		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null
 	fi
 }
 function f2 {
-	$_SUDO fd --hidden --exclude .git --exclude /timeshift $1
+	$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1"
 }
 function f2c {
-	$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift $1
+	$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
 }
 function fl {
-	$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift $1
+	$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
 }
 
 function s {
 	if is_cmd rg; then
-		/usr/bin/rg -i --hidden --follow $1
+		/usr/bin/rg -i --hidden --follow "$1"
 	else
 		grep -E -Ri "$1" .
 	fi
 }
 function sc {
 	if is_cmd rg; then
-		/usr/bin/rg --hidden --follow $1
+		/usr/bin/rg --hidden --follow "$1"
 	else
 		grep -E -R "$1" .
 	fi
