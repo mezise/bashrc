@@ -333,7 +333,7 @@ alias dokres='_docker_compose restart'
 alias dokup='_docker_compose up -d'
 alias dokdown='_docker_compose down'
 
-alias doki='docker images | sort -k1 -h'
+alias doki='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k1 -h'
 
 function _docker_compose {
 	LAST_ARG=${@: $#}
@@ -522,6 +522,7 @@ alias btofPrev01='sudo systemctl stop bluetooth'
 alias tunkim1=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
 alias tunscr=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
+alias tunaym=' ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 sam2'
 alias _session='_session'
 function _session {
 	if ! tmux list-sessions 2> /dev/null | grep -E "^s:" > /dev/null ; then
