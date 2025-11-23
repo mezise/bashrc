@@ -334,6 +334,9 @@ alias dokup='_docker_compose up -d'
 alias dokdown='_docker_compose down'
 
 alias doki='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k1 -h'
+alias doki_size='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k7 -hr'
+
+alias has='systemctl status haproxy'
 
 function _docker_compose {
 	LAST_ARG=${@: $#}
