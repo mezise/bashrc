@@ -31,8 +31,10 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 alias ls='ls --color=never'
-alias ll='ls -la --color=auto --block-size=1'
 alias l='ls -la --color=auto --block-size=1'
+alias ll='l'
+alias k='eza -laagB --show-symlinks --time-style=long-iso --group-directories-first'
+alias kk='k'
 alias l_links='_l_links'
 function _l_links {
 	find ./ -type l -ls
@@ -337,6 +339,7 @@ alias doki='docker images --format table | head -n 1 && docker images --format t
 alias doki_size='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k7 -hr'
 
 alias has='systemctl status haproxy'
+alias hac='cat /etc/haproxy/haproxy.cfg'
 
 function _docker_compose {
 	LAST_ARG=${@: $#}
@@ -483,6 +486,7 @@ function _clear_pacman {
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -Nr --brief $1 $2'
 alias diffdirs_='diff -Nr $1 $2'
+alias dif='difft'
 
 # DESKTOP:
 GTK_THEME='Adwaita'
@@ -522,10 +526,11 @@ alias bton='sudo systemctl start bluetooth && bluetoothctl power on && bluetooth
 alias btof='sudo systemctl stop bluetooth && sleep 2 && awesome-client "awesome.restart()"'
 alias btonPrev01='sudo systemctl start bluetooth && sleep 1 && n=10; for ((i=1;i<=$n;i++)); do if $(bluetoothctl connect FC:A8:9A:94:AC:44 | grep -q "Connection successful"); then echo "OK"; break; else echo "wait ($i/$n)"; sleep 1; fi; done;'
 alias btofPrev01='sudo systemctl stop bluetooth'
-alias tunkim1=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
+alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
-alias tunscr=' ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
-alias tunaym=' ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 sam2'
+alias tunscr='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
+alias tunaym='ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 -L 28267:172.29.0.1:48267 sam2'
+alias tunsam='tunaym'
 alias _session='_session'
 function _session {
 	if ! tmux list-sessions 2> /dev/null | grep -E "^s:" > /dev/null ; then
