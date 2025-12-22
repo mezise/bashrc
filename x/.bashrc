@@ -34,7 +34,6 @@ alias ls='ls --color=never'
 alias l='ls -la --color=auto --block-size=1'
 alias ll='l'
 alias k='eza -laagB --show-symlinks --time-style=long-iso --group-directories-first'
-alias kk='k'
 alias l_links='_l_links'
 function _l_links {
 	find ./ -type l -ls
@@ -477,10 +476,13 @@ function _clear_pacman {
 	echo "START:" \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
 	&& $_SUDO du -sh /home/$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /home/michalm/.cache/pikaur/build/ \
 	&& $_SUDO paccache -rk1 \
 	&& $_SUDO paccache -rk1 -c /home/$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO rm -rf /home/michalm/.cache/pikaur/build/* \
 	&& $_SUDO du -sh /var/cache/pacman/pkg/ \
 	&& $_SUDO du -sh /home/$_USER/.cache/pikaur/pkg/ \
+	&& $_SUDO du -sh /home/michalm/.cache/pikaur/build/ \
 	&& echo "STOP."
 }
 alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
@@ -529,7 +531,7 @@ alias btofPrev01='sudo systemctl stop bluetooth'
 alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
 alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
 alias tunscr='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
-alias tunaym='ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 -L 28267:172.29.0.1:48267 sam2'
+alias tunaym='ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 -L 19880:0.0.0.0:8080 -L 28267:172.29.0.1:48267 sam2'
 alias tunsam='tunaym'
 alias _session='_session'
 function _session {
@@ -1208,6 +1210,28 @@ function cvsupd {
 function cvsupdn {
 	cvsg -n update -d -P $@
 }
+alias cvslog=_cvslog
+function _cvslog {
+	vCurDir=`pwd`
+	vFile=$@
+	vDir=.
+	if [ -d ./scrm ]; then
+		vDir=scrm
+		vFile=${vFile:5}
+	elif [ -d ./samp ]; then
+		vDir=samp
+		vFile=${vFile:5}
+	fi
+	if [ "$vFile" == "" ]; then
+		echo ::ERROR:: No parameter file
+	else
+		echo ::DIR:: $vDir
+		echo ::FILE:: $vFile
+		cd $vDir
+		cvs log $vFile | more
+		cd $vCurDir
+	fi
+}
 function _last_installed {
 	tac /var/log/pacman.log | grep -i "] installed"  | more
 }
@@ -1307,8 +1331,9 @@ function _synch_sam {
 		echo '::Synch_sam started' $(date -Is)
 		SRC=/home/michalm/mih/projects/mparker/p_samp_test/src/
 		TRG=sam:/var/www/htmlssl/wwwsamp/prod_cc/src
-		COMMAND=(rsync -avzh --omit-dir-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
+		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
 		"${COMMAND[@]}"
+		rsync -a ${SRC}htdocs/cfg/cfg_almacg_samp_prod.php5 ${TRG}/htdocs/cfg/cfg_scmignore.php5
 		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
 			"${COMMAND[@]}"
 			echo '::Synch_sam on-change finished' $(date -Is)
@@ -1324,8 +1349,9 @@ function _synch_scr {
 		echo '::Synch_scr started' $(date -Is)
 		SRC=/home/michalm/mih/projects/mparker/p_scr_crm_test/src/
 		TRG=scr:/home/company/scr/docker/scrm_data/web_data/htmlssl/scr/prod_cc/src
-		COMMAND=(rsync -avzh --omit-dir-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
+		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
 		"${COMMAND[@]}"
+		rsync -a ${SRC}htdocs/cfg/cfg_scr_crm_prod.php5 ${TRG}/htdocs/cfg/cfg_scmignore.php5
 		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
 			"${COMMAND[@]}"
 			echo '::Synch_scr on-change finished' $(date -Is)
