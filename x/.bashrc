@@ -570,7 +570,7 @@ function _mailm {
 	if [ -z "$_SUBJECT" ]; then
 		_SUBJECT="Email"
 	fi
-	_SUBJECT=${_SUBJECT}" ($(date -In))"
+	_SUBJECT=${_SUBJECT}" [`hostname`] ($(date -In))"
 	echo "$_SUBJECT" | mailx -s "$_SUBJECT" ${_PREFIX}${_AT}${_SUFFIX}
 }
 alias pdfr='_pdfr'
