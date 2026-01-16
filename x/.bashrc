@@ -561,6 +561,18 @@ alias code='vscodium'
 alias co='vscodium'
 alias cc='vscodium'
 alias hh="helix --config /home/$_USERTMP/.config/helix/config.toml"
+alias mailm='_mailm'
+function _mailm {
+	_SUBJECT=$1
+	_PREFIX='info'
+	_AT='@'
+	_SUFFIX='arubico.com'
+	if [ -z "$_SUBJECT" ]; then
+		_SUBJECT="Email"
+	fi
+	_SUBJECT=${_SUBJECT}" ($(date -In))"
+	echo "$_SUBJECT" | mailx -s "$_SUBJECT" ${_PREFIX}${_AT}${_SUFFIX}
+}
 alias pdfr='_pdfr'
 function _pdfr {
 	FILE_IN=$1
@@ -1675,5 +1687,7 @@ export RUSTC_WRAPPER=sccache
 export BINSTALL_DISABLE_TELEMETRY=true
 # End.
 
-# export LANG=en_CA.utf8
-# export LC_COLLATE=C
+if [ "`hostname`" == "box" ]; then
+	export LANG=en_CA.utf8
+	export LC_ALL=en_CA.utf8
+fi
