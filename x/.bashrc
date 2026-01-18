@@ -1554,6 +1554,8 @@ function _init {
 				sed -i "s|showdownloadsize = no|showdownloadsize = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|reversesearchsorting = no|reversesearchsorting = yes|" /home/$_USERTMP/.config/pikaur.conf
 				sed -i "s|dynamicusers = root|dynamicusers = never|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|userid = 0|userid = 1000|" /home/$_USERTMP/.config/pikaur.conf
+				sed -i "s|groupid = 0|groupid = 1000|" /home/$_USERTMP/.config/pikaur.conf
 			fi
 			# =================================================== #
 		fi
