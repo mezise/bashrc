@@ -127,7 +127,7 @@ function _pw1 {
 	if [ "$PAR1" == "" ]; then
 		PAR1=53
 	fi
-	pwgen -r \\\"\'\`\<\>\|\@\^\:\,\; -ys $PAR1
+	pwgen -r \\\"\'\`\<\>\|\@\^\:\,\;\$\& -ys $PAR1
 }
 alias pw2='_pw2'
 function _pw2 {
@@ -180,7 +180,7 @@ if [ "$_IS_SCREEN_FOUND" == "0" ]; then
 fi
 
 alias sudo='sudo '
-alias sudoi='sudo -E bash --rcfile ~michalm/.bashrc'
+alias sudoi='sudo -E bash --rcfile ~/.bashrc'
 alias myip='echo `curl -s http://whatismyip.akamai.com`'
 # alias myip='echo `curl -s http://ipinfo.io/ip`'
 alias ipp='myip'
@@ -338,6 +338,18 @@ alias dokres='_docker_compose restart'
 alias dokup='_docker_compose up -d'
 alias dokdown='_docker_compose down'
 
+alias dokin='docker container inspect'
+alias dokcd='_dokcd'
+function _dokcd {
+	DIR=`docker container inspect $1 | grep com.docker.compose.project.working_dir | head -n 1 | sed -rn 's/.*\: \"([^\"]+)\".*/\1/p'`
+	if [ -z $DIR ]; then
+		echo :: !!! WORKING DIRECTORY NOT FOUND !!!
+	else
+		echo :: GOING TO WORKING DIRECTORY [$DIR]
+		cd $DIR
+	fi
+}
+
 alias doki='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k1 -h'
 alias doki_size='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k7 -hr'
 
@@ -382,15 +394,16 @@ function _docker_compose {
 					_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
 				fi
 			fi
+			_dok_tmp_compose_file_delete $MODE
 			_dok_tmp_compose_file_create $MODE
 		fi
 		# Exec command:
 		echo CMD:[${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE]
 		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE
 		#
-		if [[ "$MODE" != "prod" ]]; then
-			_dok_tmp_compose_file_delete $MODE
-		fi
+		# if [[ "$MODE" != "prod" ]]; then
+		# 	_dok_tmp_compose_file_delete $MODE
+		# fi
 	fi
 }
 function _dok_get_last_arg_err {
@@ -951,8 +964,8 @@ function _dok {
 		docker logs --since 2h --follow $APPNAME
 	elif [ "$ACTION" == "logclear" ] || [ "$ACTION" == "clearlog" ]; then
 		echo ::Clearing log file:
-		echo `docker container inspect  --format='{{.LogPath}}' $APPNAME`
-		$_SUDO truncate -s 0 `docker container inspect  --format='{{.LogPath}}' $APPNAME`
+		echo `docker container inspect --format='{{.LogPath}}' $APPNAME`
+		$_SUDO truncate -s 0 `docker container inspect --format='{{.LogPath}}' $APPNAME`
 		echo DONE
 	elif [ "$ACTION" == "logsave" ]; then
 		docker logs $APPNAME >& ${APPNAME}_`date +%Y%m%d_%H%M%S`.log
@@ -1346,7 +1359,7 @@ function _synch_sam {
 	if [ "`hostname`" == "box" ]; then
 		echo '::Synch_sam started' $(date -Is)
 		SRC=/home/michalm/mih/projects/mparker/p_samp_test/src/
-		TRG=sam:/var/www/htmlssl/wwwsamp/prod_cc/src
+		TRG=sam_notunnel:/home/company/aym/docker/samp_data/web_data/html/wwwsamp/prod_cc/src
 		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
 		"${COMMAND[@]}"
 		rsync -a ${SRC}htdocs/cfg/cfg_almacg_samp_prod.php5 ${TRG}/htdocs/cfg/cfg_scmignore.php5
