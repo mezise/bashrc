@@ -809,7 +809,7 @@ function myphp {
 	elif [ "$PAR1" == "restart" ]; then
 		docker restart myphp ;
 		docker container ls -a | grep 'myphp' ;
-	elif [ "$PAR1" == "login" ]; then
+	elif [ "$PAR1" == "login" ] || [ "$PAR1" == "l" ]; then
 		docker exec -it myphp bash
 	elif [ "$PAR1" == "logs" ]; then
 		docker logs --since 2h --follow myphp
@@ -845,8 +845,9 @@ function _dok {
 	elif [ "$CLIENT" == "clean" ]; then
 		:
 	else
-		echo ::[COMPANY: $CLIENT], [APPNAME: $APPNAME], [ACTION: $ACTION]\
-			, [COMPANY ROOT: \/share \-\> $p_root]
+		DIR=`docker container inspect $1 | grep com.docker.compose.project.working_dir | head -n 1 | sed -rn 's/.*\: \"([^\"]+)\".*/\1/p'`
+		echo ::[COMPANY: $CLIENT], [APPNAME: $APPNAME], [ACTION: $ACTION],\
+			[CONFIG: $DIR]
 	fi
 	if [ "$CLIENT" == "" ] || [ "$CLIENT" == "list" ]; then
 		echo ::[ACTION: $ACTION \(active\)]
@@ -947,7 +948,7 @@ function _dok {
 	elif [ "$ACTION" == "restart" ]; then
 		docker restart $APPNAME ;
 		docker container ls -a | grep $APPNAME;
-	elif [ "$ACTION" == "login" ]; then
+	elif [ "$ACTION" == "login" ] || [ "$ACTION" == "l" ]; then
 		docker exec -it $APPNAME bash
 	elif [ "$ACTION" == "log" ] || [ "$ACTION" == "logs" ]; then
 		docker logs --since 2h --follow $APPNAME
@@ -1046,7 +1047,7 @@ function mydbd {
 	elif [ "$ACTION" == "restart" ]; then
 		docker restart mydb ;
 		docker container ls -a | grep 'mydb' ;
-	elif [ "$ACTION" == "login" ]; then
+	elif [ "$ACTION" == "login" ] || [ "$ACTION" == "l" ]; then
 		docker exec -it -w /var/lib/mysql/ mydb bash
 	elif [ "$ACTION" == "con" ]; then
 		mariadb -h 127.0.0.1 -P 3267 --protocol=TCP -u root -p
@@ -1075,7 +1076,7 @@ function mydbc {
 	elif [ "$ACTION" == "restart" ]; then
 		systemctl restart mydb ;
 		systemctl status mydb | grep 'Active:' ;
-	elif [ "$ACTION" == "login" ]; then
+	elif [ "$ACTION" == "login" ] || [ "$ACTION" == "l" ]; then
 		cd /var/lib/mysql_sandboxes/msb_10_1_40/data/
 	elif [ "$ACTION" == "save" ]; then
 		/root/scripts/dbAll_here_backup_script.sh ; \
@@ -1176,7 +1177,7 @@ function lin {
 	elif [ "$PAR1" == "restart" ]; then
 		docker restart lin ;
 		docker container ls -a | grep 'lin' ;
-	elif [ "$PAR1" == "login" ]; then
+	elif [ "$PAR1" == "login" ] || [ "$PAR1" == "l" ]; then
 		docker exec -it lin bash -c "$_SUDO -i -H -u michalm bash ~michalm/x/.xbashrc"
 	elif [ "$PAR1" == "logs" ]; then
 		docker logs --since 2h --follow lin
