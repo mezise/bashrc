@@ -317,26 +317,26 @@ function _dokclean {
 	command docker volume ls -f 'dangling=true' -q  | xargs --no-run-if-empty docker volume rm ;
 }
 
-alias dokbuild='_docker_compose build'
-alias dokbuildforce='_docker_compose build --no-cache'
-alias dokbuildf='_docker_compose build --no-cache'
+alias dokbuild='_docker_compose build ___'
+alias dokbuildforce='_docker_compose build --no-cache ___'
+alias dokbuildf='_docker_compose build --no-cache ___'
 
-alias dokrebuild='_docker_compose up --build -d'
-alias dokreb='_docker_compose up --build -d'
+alias dokrebuild='_docker_compose up --build -d ___'
+alias dokreb='_docker_compose up --build -d ___'
 alias dokrebuildforce='_dokrebf'
 alias dokrebf='_dokrebf'
 function _dokrebf {
-	_docker_compose build --no-cache $@
-	_docker_compose up -d $@
+	_docker_compose build --no-cache ___ "$@"
+	_docker_compose up -d ___ "$@"
 }
 
-alias dokstart='_docker_compose start'
-alias dokstop='_docker_compose stop'
-alias dokrestart='_docker_compose restart'
-alias dokres='_docker_compose restart'
+alias dokstart='_docker_compose start ___'
+alias dokstop='_docker_compose stop ___'
+alias dokrestart='_docker_compose restart ___'
+alias dokres='_docker_compose restart ___'
 
-alias dokup='_docker_compose up -d'
-alias dokdown='_docker_compose down'
+alias dokup='_docker_compose up -d ___'
+alias dokdown='_docker_compose down ___'
 
 alias dokin='docker container inspect'
 alias dokcd='_dokcd'
@@ -357,93 +357,82 @@ alias has='systemctl status haproxy'
 alias hac='cat /etc/haproxy/haproxy.cfg'
 
 function _docker_compose {
-	LAST_ARG=${@: $#}
-	MODE=""
+	ARGS=$@
+	# Substring before (sed) and trim (xargs):
+	ARGS_BEFORE=`echo "$ARGS" | sed 's/ ___.*//' | xargs`
+	# Substring after (sed) and trim (xargs):
+	ARGS_AFTER=`echo "$ARGS" | sed 's/.* ___//' | xargs`
+	IFS=' ' read -r ARG_1 ARG_2 <<< "$ARGS_AFTER"
+	#
+	# echo ARGS[$ARGS]
+	# echo ARGS_BEFORE[$ARGS_BEFORE]
+	# echo ARGS_AFTER[$ARGS_AFTER]
+	# echo ARG_1[$ARG_1]
+	# echo ARG_2[$ARG_2]
+	#
+	MYPREFIX="$ARG_1"
+	SERVICE="$ARG_2"
 	APPNAME=""
 	CLIENT=""
-	SERVICE=""
-	IFS=- read -r MODE APPNAME <<< $LAST_ARG
-	if [ "$APPNAME" != "" ]; then
-		IFS=_ read -r CLIENT SERVICE <<< $APPNAME
+	ERR=""
+	#
+	if [ "$MYPREFIX" == "" ] && [ "$SERVICE" == "" ]; then
+		ERR="!!! ERROR: REQUIERED ONE OR TWO ARGS: {PREFIX} {SERVICE}. !!!"
+	elif [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
+		ERR="!!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!"
 	fi
-	echo ::MODE:[$MODE], CLIENT:[$CLIENT], SERVICE:[$SERVICE]
-	if [ "$CLIENT" != "" ] && [ "$SERVICE" == "" ]; then
-		echo "!!! ERROR: No SERVICE defined for CLIENT. !!!"
-		return
-	fi
-	# strstr:
-	if [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$MODE\"" ]]; then
-		EXCEPT_LAST_ARGS=${@: 1:$#-1}
-	else
-		EXCEPT_LAST_ARGS=$@
-	fi
-	ERR=`_dok_get_last_arg_err $MODE`
 	if [ "$ERR" != "" ]; then
 		echo $ERR
+		return;
 	fi
+	#
+	if [ "$MYPREFIX" != "" ] && [ "$SERVICE" != "" ]; then
+		APPNAME="${MYPREFIX}_${SERVICE}"
+	fi
+	echo ::PREFIX:[$MYPREFIX], SERVICE:[$SERVICE], APPNAME\({PREFIX}_{SERVICE}\):[$APPNAME]
+	#
 	if [ "$ERR" == "" ]; then
-		_ADD_CMD_ARGS=
-		if [[ "$MODE" != "prod" ]]; then
-			_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-			_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
-			if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
-				_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
-			else
-				_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE}
-				if [ -f $_DOCKER_COMPOSE_MODE_FILE ]; then
-					_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_MODE_FILE}
-				fi
-			fi
-			_dok_tmp_compose_file_delete $MODE
-			_dok_tmp_compose_file_create $MODE
+		_ADD_CMD_ARGS=' --project-name '${MYPREFIX}
+		_ADD_CMD_ARGS+=' -f 'tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+		if [ -f ${MYPREFIX}.${_DOCKER_COMPOSE_FILE} ]; then
+			_ADD_CMD_ARGS+=' -f 'tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE}
 		fi
-		# Exec command:
-		echo CMD:[${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE]
-		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $EXCEPT_LAST_ARGS $SERVICE
+		if [ -f ${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]; then
+			_ADD_CMD_ARGS+=' -f 'tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+		fi
 		#
-		# if [[ "$MODE" != "prod" ]]; then
-		# 	_dok_tmp_compose_file_delete $MODE
-		# fi
+		_dok_tmp_compose_file_delete $MYPREFIX
+		_dok_tmp_compose_file_create $MYPREFIX
+		#
+		# Exec command:
+		echo CMD:[${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $ARGS_BEFORE $SERVICE]
+		${_DOCKER_COMPOSE_CMD}${_ADD_CMD_ARGS} $ARGS_BEFORE $SERVICE
+		#
+		# _dok_tmp_compose_file_delete $MODE
 	fi
-}
-function _dok_get_last_arg_err {
-	if [[ ! -f $_DOCKER_COMPOSE_FILE ]]; then
-		echo "!!! ERROR: NO $_DOCKER_COMPOSE_FILE FILE IN CURRENT DIRECTORY. !!!"
-	fi
-	MODE=$1
-	if ! [[ "$_DOCKER_COMPOSE_MODES" =~ "\"$MODE\"" ]]; then
-		# if [[ -f ${MODE}.${_DOCKER_COMPOSE_FILE} ]]; then
-		# 	return
-		# elif [[ -f ${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
-		# 	return
-		# else
-			echo "!!! ERROR: $MODE IS NOT SUPPORTED MODE $_DOCKER_COMPOSE_MODES. !!!"
-		# fi
-	fi
-	echo ""
 }
 function _dok_tmp_compose_file_create {
-	MODE=$1
+	MYPREFIX=$1
+	MYPREFIX_UPPER=${MYPREFIX^^}
 	command cp -pf ${_DOCKER_COMPOSE_FILE} tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
-		_DOCKER_COMPOSE_MODE_FILE=${MODE}.${_DOCKER_COMPOSE_FILE}
+	sed -i "s|{PROD_|{${MYPREFIX_UPPER}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	if [[ -f ${MYPREFIX}.${_DOCKER_COMPOSE_FILE} ]]; then
+		command cp -pf ${MYPREFIX}.${_DOCKER_COMPOSE_FILE} tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+		sed -i "s|{PROD_|{${MYPREFIX_UPPER}_|g" tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 	fi
-	if [[ ! -f $_DOCKER_COMPOSE_MODE_FILE ]]; then
-		echo "" > $_DOCKER_COMPOSE_MODE_FILE
+	if [[ -f ${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN} ]]; then
+		command cp -pf ${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN} tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+		sed -i "s|{PROD_|{${MYPREFIX_UPPER}_|g" tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 	fi
-	command cp -pf ${_DOCKER_COMPOSE_MODE_FILE} tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	MODEUPPER=${MODE^^}
-	sed -i "s|{PROD_|{_${MODEUPPER}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	sed -i "s|# mode_|${MODE}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	sed -i "s|# mode_|${MODE}_|g" tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	sed -i "/# removeline/d" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	sed -i "/# removeline/d" tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	# sed -i "s|# mode_|${MYPREFIX}_|g" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	# sed -i "s|# mode_|${MYPREFIX}_|g" tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	# sed -i "/# removeline/d" tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	# sed -i "/# removeline/d" tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 }
 function _dok_tmp_compose_file_delete {
-	MODE=$1
+	MYPREFIX=$1
 	rm -f tmp.${_DOCKER_COMPOSE_FILE_SCMIGN}
-	rm -f tmp.${MODE}.${_DOCKER_COMPOSE_FILE_SCMIGN}
+	rm -f tmp.${MYPREFIX}.${_DOCKER_COMPOSE_FILE_SCMIGN}
 }
 
 ##
