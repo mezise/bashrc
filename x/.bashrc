@@ -353,8 +353,11 @@ function _dokcd {
 alias doki='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k1 -h'
 alias doki_size='docker images --format table | head -n 1 && docker images --format table | tail -n +2 | sort -k7 -hr'
 
-alias has='systemctl status haproxy'
-alias hac='cat /etc/haproxy/haproxy.cfg'
+alias ha_status='systemctl status haproxy'
+alias has='ha_status'
+alias ha_config='cat /etc/haproxy/haproxy.cfg'
+alias hac='ha_config'
+alias ha_restart='systemctl restart haproxy'
 
 function _docker_compose {
 	cd `pwd -P`
