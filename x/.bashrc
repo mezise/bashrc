@@ -357,6 +357,7 @@ alias has='systemctl status haproxy'
 alias hac='cat /etc/haproxy/haproxy.cfg'
 
 function _docker_compose {
+	cd `pwd -P`
 	ARGS=$@
 	# Substring before (sed) and trim (xargs):
 	ARGS_BEFORE=`echo "$ARGS" | sed 's/ ___.*//' | xargs`
@@ -647,6 +648,7 @@ function _lg {
 		| grep -E --color $@
 }
 
+alias f='f'
 function f {
 	if is_cmd fd; then
 		f2 "$1"
@@ -654,6 +656,7 @@ function f {
 		f1 "$1"
 	fi
 }
+alias fc='fc'
 function fc {
 	if is_cmd fd; then
 		f2c "$1"
@@ -661,6 +664,7 @@ function fc {
 		f1c "$1"
 	fi
 }
+alias f1='f1'
 function f1 {
 	if is_cmd rg; then
 		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null | rg -i "$1"
@@ -668,7 +672,7 @@ function f1 {
 		$_SUDO find . -regextype posix-extended -iregex ".*$1.*" 2> /dev/null
 	fi
 }
-
+alias f1c='f1c'
 function f1c {
 	if is_cmd rg; then
 		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null | rg -i "$1"
@@ -676,16 +680,20 @@ function f1c {
 		$_SUDO find . -regextype posix-extended -regex ".*$1.*" 2> /dev/null
 	fi
 }
+alias f2='f2'
 function f2 {
 	$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1"
 }
+alias f2c='f2c'
 function f2c {
 	$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
 }
+alias fl='fl'
 function fl {
 	$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
 }
 
+alias s='s'
 function s {
 	if is_cmd rg; then
 		/usr/bin/rg -i --hidden --follow "$1"
@@ -693,6 +701,7 @@ function s {
 		grep -E -Ri "$1" .
 	fi
 }
+alias sc='sc'
 function sc {
 	if is_cmd rg; then
 		/usr/bin/rg --hidden --follow "$1"
