@@ -357,8 +357,10 @@ alias ha_status='systemctl status haproxy'
 alias has='ha_status'
 alias ha_config='cat /etc/haproxy/haproxy.cfg'
 alias hac='ha_config'
-alias ha_vi='vim /etc/haproxy/haproxy.cfg'
+alias ha_vi='vi /etc/haproxy/haproxy.cfg'
 alias havi='ha_vi'
+alias ha_cc='vscodium /etc/haproxy/haproxy.cfg'
+alias hacc='ha_cc'
 alias ha_restart='sudo systemctl restart haproxy ; systemctl status haproxy'
 
 function _docker_compose {
