@@ -189,6 +189,10 @@ alias ipp2='myip2'
 alias luarocks='sudo luarocks --lua-version 5.1'
 alias luarocks53='sudo luarocks --lua-version 5.3'
 alias luaperm='sudo chmod -R a+rx /usr/share/lua/ /usr/lib/lua/'
+alias per-projects="sudo bash /home/$_USER/mih/projects/mparker/permissions_projects.sh"
+alias per-mysql='sudo bash /home/company/mydb/permissions_mysql.sh'
+alias cd-projects="cd $HOME/mih/projects/mparker/"
+alias cd-mysql="cd /home/company/mydb/mysql/"
 ##
 alias pik='pik1'
 alias pikrem='pikrem1'
@@ -227,6 +231,16 @@ alias upd3='yay -Syu'
 alias updr3='yay -Syu -N'
 alias upda3='yay -Syu -a'
 alias updker3='yay -S $(yay -Qsq ^linux | grep -E --color=never ^linux)'
+##
+alias piksize='_piksize'
+function _piksize {
+	IFS='' read -r -d '' CMD <<"EOF"
+		LANG=C pacman -Qi | awk -F: '$1~/^Name / { name=$2 } $1~/^Installed Size / { gsub(/ /, ""); size=$2; print "-", size, name }' | column -t | sort -hr -k 2
+EOF
+	PACKAGES_NR="::Installed packages: `eval \"$CMD\" | wc -l`"
+	PACKAGES_LIST=`eval "$CMD"`
+	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -N --header=1 --no-number-headers --no-search-headers
+}
 ##
 alias sys="$_SUDO inxi -Fxxxzm"
 alias sys2="$_SUDO inxi -FxxxzmaJdfiloprujnsZ -t cm"
@@ -503,6 +517,7 @@ alias rrb='_rrb' ; function _rrb { source /home/$_USER/.bashrc ; }
 alias diffdirs='diff -Nr --brief $1 $2'
 alias diffdirs_='diff -Nr $1 $2'
 alias dif='difft'
+alias di='delta --line-numbers --side-by-side';
 
 # DESKTOP:
 GTK_THEME='Adwaita'
@@ -1364,7 +1379,7 @@ function _test {
 function _synch_sam {
 	if [ "`hostname`" == "box" ]; then
 		echo '::Synch_sam started' $(date -Is)
-		SRC=/home/michalm/mih/projects/mparker/p_samp_test/src/
+		SRC=/home/$_USER/mih/projects/mparker/p_samp_test/src/
 		TRG=sam_notunnel:/home/company/aym/docker/samp_data/web_data/html/wwwsamp/prod_cc/src
 		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
 		"${COMMAND[@]}"
@@ -1382,7 +1397,7 @@ function _synch_sam {
 function _synch_scr {
 	if [ "`hostname`" == "box" ]; then
 		echo '::Synch_scr started' $(date -Is)
-		SRC=/home/michalm/mih/projects/mparker/p_scr_crm_test/src/
+		SRC=/home/$_USER/mih/projects/mparker/p_scr_crm_test/src/
 		TRG=scr:/home/company/scr/docker/scrm_data/web_data/htmlssl/scr/prod_cc/src
 		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
 		"${COMMAND[@]}"
