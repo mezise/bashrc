@@ -1458,7 +1458,7 @@ function _init {
 		_CURDIR_upload_init=`pwd`
 		if [ "`hostname`" == "box" ]; then
 			echo ::UPLOAD INIT FILES.
-			echo ::Current dir: $_CURDIR_upload_init
+			echo ::_CURDIR_upload_init: $_CURDIR_upload_init
 			_TMPREPODIR=/tmp/bashrc.`_get_rand_str`
 			# _TMPREPODIR=/tmp/bashrc.111
 			#
@@ -1487,7 +1487,7 @@ function _init {
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
 		_init base_init
-		echo ::Current dir: $_CURDIR_upload_init
+		echo ::_CURDIR_upload_init: $_CURDIR_upload_init
 		cd $_CURDIR_upload_init
 	fi
 	# =================================================== #
@@ -1631,6 +1631,7 @@ function _init {
 	if [ "$1" == "base_init" ]; then
 		_CURDIR_base_init=`pwd`
 		echo ::EXEC COMMON INIT.
+		echo ::_CURDIR_base_init: $_CURDIR_base_init
 		mkdir -p /home/$_USERTMP/.config/helix/
 		cat >/home/$_USERTMP/.config/helix/config.toml <<EOL
 [editor]
@@ -1641,6 +1642,7 @@ mouse = true
 hidden = false
 deduplicate-links = false
 EOL
+		echo ::_CURDIR_base_init: $_CURDIR_base_init
 		cd $_CURDIR_base_init
 	fi
 	# =================================================== #
