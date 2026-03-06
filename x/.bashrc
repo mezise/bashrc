@@ -6,9 +6,7 @@ _USERTMP=$_USER
 # _OS_R=`lsb_release -rs`
 
 function is_cmd {
-	PROG=$1
-	tmp=`which $PROG 2> /dev/null`
-	if [ "$tmp" = "" ]; then
+	if ! command -v $1 >/dev/null 2>&1 ; then
 		return 1
 	else
 		return 0
@@ -52,9 +50,9 @@ alias grep='grep --color=never'
 alias egrep='grep -E --color=never'
 alias fgrep='grep -F --color=never'
 alias fd='fd --hidden --exclude .git'
-alias g='grep --color=auto'
-alias eg='grep -E --color=auto'
-alias fg='grep -F --color=auto'
+alias g='grep --color=auto -i'
+alias eg='grep -E --color=auto -i'
+alias fg='grep -F --color=auto -i'
 alias _certi='openssl x509 -text -noout -in'
 alias _certi12='_certi12'
 function _certi12 {
@@ -189,10 +187,10 @@ alias ipp2='myip2'
 alias luarocks='sudo luarocks --lua-version 5.1'
 alias luarocks53='sudo luarocks --lua-version 5.3'
 alias luaperm='sudo chmod -R a+rx /usr/share/lua/ /usr/lib/lua/'
-alias per-projects="sudo bash /home/$_USER/mih/projects/mparker/permissions_projects.sh"
-alias per-mysql='sudo bash /home/company/mydb/permissions_mysql.sh'
-alias cd-projects="cd $HOME/mih/projects/mparker/"
-alias cd-mysql="cd /home/company/mydb/mysql/"
+alias per_projects="sudo bash /home/$_USER/mih/projects/mparker/permissions_projects.sh"
+alias per_mysql='sudo bash /home/company/mydb/permissions_mysql.sh'
+alias cd_projects="cd $HOME/mih/projects/mparker/"
+alias cd_mysql="cd /home/company/mydb/mysql/"
 ##
 alias pik='pik1'
 alias pikrem='pikrem1'
@@ -704,15 +702,27 @@ function f1c {
 }
 alias f2='f2'
 function f2 {
-	$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1"
+	if is_cmd rg; then
+		$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+	else
+		$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1"
+	fi
 }
 alias f2c='f2c'
 function f2c {
-	$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
+	if is_cmd rg; then
+		$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+	else
+		$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
+	fi
 }
 alias fl='fl'
 function fl {
-	$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
+	if is_cmd rg; then
+		$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+	else
+		$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
+	fi
 }
 
 alias s='s'
@@ -1376,40 +1386,58 @@ function _test {
 	_USERTMP=michalm
 }
 
-function _synch_sam {
+function _synch_project_mode {
+	vProjectShort=$1
+	vMode=$2;
+	###
+	if [ "$vProjectShort" == "sam" ]; then
+		vClient=aym
+		vCfg=cfg_almacg_samp_${vMode}.php5
+		vSrc=/home/$_USER/mih/projects/mparker/p_samp_test/src/
+		vTrg=${vProjectShort}_synch:/home/company/${vClient}/docker/samp_data/web_data/html/wwwsamp/${vMode}_cc/src/
+	elif [ "$vProjectShort" == "scr" ]; then
+		vClient=scr
+		vCfg=cfg_scr_crm_${vMode}.php5
+		vSrc=/home/$_USER/mih/projects/mparker/p_scr_crm_test/src/
+		vTrg=${vProjectShort}_synch:/home/company/${vClient}/docker/scrm_data/web_data/htmlssl/${vClient}/${vMode}_cc/src/
+	else
+		echo ::ERROR: Synch-project[${vProjectShort}]-mode[${vMode}] has no defined configuration
+		return
+	fi
+	###
 	if [ "`hostname`" == "box" ]; then
-		echo '::Synch_sam started' $(date -Is)
-		SRC=/home/$_USER/mih/projects/mparker/p_samp_test/src/
-		TRG=sam_notunnel:/home/company/aym/docker/samp_data/web_data/html/wwwsamp/prod_cc/src
-		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
+		echo ::Synch-project[${vProjectShort}]-mode[${vMode}] started $(date -Is)
+		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $vSrc $vTrg)
+		COMMAND_CFG=(rsync -a ${vSrc}htdocs/cfg/${vCfg} ${vTrg}htdocs/cfg/cfg_scmignore.php5)
+		echo ; echo ::COMMAND: "${COMMAND[@]}" ; echo ::COMMAND_CFG: "${COMMAND_CFG[@]}" ; echo ;
+		# return
+		###
 		"${COMMAND[@]}"
-		rsync -a ${SRC}htdocs/cfg/cfg_almacg_samp_prod.php5 ${TRG}/htdocs/cfg/cfg_scmignore.php5
-		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
+		"${COMMAND_CFG[@]}"
+		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $vSrc; do
 			"${COMMAND[@]}"
-			echo '::Synch_sam on-change finished' $(date -Is)
+			echo :Synch-project[${vProjectShort}]-mode[${vMode}] on-change finished $(date -Is)
 			echo
 		done
 	else
-		echo '::Synch_sam available only on "box"'
+		echo ::ERROR: Synch-project[${vProjectShort}]-mode[${vMode}] available only on "box"
 	fi
 }
 
+function _synch_sam {
+	_synch_project_mode sam prod
+}
+
+function _synch_sam_test {
+	_synch_project_mode sam test
+}
+
 function _synch_scr {
-	if [ "`hostname`" == "box" ]; then
-		echo '::Synch_scr started' $(date -Is)
-		SRC=/home/$_USER/mih/projects/mparker/p_scr_crm_test/src/
-		TRG=scr:/home/company/scr/docker/scrm_data/web_data/htmlssl/scr/prod_cc/src
-		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $SRC $TRG)
-		"${COMMAND[@]}"
-		rsync -a ${SRC}htdocs/cfg/cfg_scr_crm_prod.php5 ${TRG}/htdocs/cfg/cfg_scmignore.php5
-		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $SRC; do
-			"${COMMAND[@]}"
-			echo '::Synch_scr on-change finished' $(date -Is)
-			echo
-		done
-	else
-		echo '::Synch_scr available only on "box"'
-	fi
+	_synch_project_mode scr prod
+}
+
+function _synch_scr_test {
+	_synch_project_mode scr test
 }
 
 alias _init='_init'
@@ -1721,6 +1749,7 @@ export CARGO_BUILD_JOBS=2
 export SCCACHE_DIR=/home/t/sccache
 export RUSTC_WRAPPER=sccache
 export BINSTALL_DISABLE_TELEMETRY=true
+export DOWNGRADE_FROM_ALA=1 # https://wiki.manjaro.org/index.php/Downgrading_packages
 # End.
 
 if [ "`hostname`" == "box" ]; then
