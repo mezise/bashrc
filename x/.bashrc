@@ -1486,8 +1486,9 @@ function _init {
 		else
 			echo ::CANNOT UPLOAD INIT FILES. Not a box machine.
 		fi
-		_init base_init
 		echo ::_CURDIR_upload_init: $_CURDIR_upload_init
+		cd $_CURDIR_upload_init
+		_init base_init
 		cd $_CURDIR_upload_init
 	fi
 	# =================================================== #
