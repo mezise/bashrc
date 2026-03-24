@@ -64,14 +64,17 @@ alias disk='_disk'
 alias _disk='_disk'
 function _disk {
 	echo
-	echo ::LSBLK: ; echo
+	echo ::LSBLK: ;
 	# $_SUDO lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
 	$_SUDO lsblk -e 7 -o name,fstype,size,fsused,label,partlabel,mountpoint,uuid,partuuid
-	echo ; echo
-	echo ::BLKID: ; echo
+	echo ;
+	echo ::SWAP[/proc/swaps]: ;
+	cat /proc/swaps
+	echo ;
+	echo ::BLKID: ;
 	$_SUDO blkid
-	echo ; echo
-	echo ::FDISK: ; echo
+	echo ;
+	echo ::FDISK: ;
 	$_SUDO fdisk -l
 	echo
 }
@@ -179,8 +182,9 @@ fi
 
 alias sudo='sudo '
 alias sudoi='sudo -E bash --rcfile ~/.bashrc'
-alias myip='echo `curl -s http://whatismyip.akamai.com`'
 # alias myip='echo `curl -s http://ipinfo.io/ip`'
+# alias myip='echo `curl -s https://api.myip.com` | jq -r ".ip"'
+alias myip='echo `curl -s http://whatismyip.akamai.com`'
 alias ipp='myip'
 alias myip2="ip route get 8.8.8.8 | sed -rn 's/.*src ([0-9\.]+)[ |].*/\1/p'"
 alias ipp2='myip2'
@@ -989,6 +993,8 @@ function _dok {
 	elif [ "$ACTION" == "restart" ]; then
 		docker restart $APPNAME ;
 		docker container ls -a | grep $APPNAME;
+	elif [ "$ACTION" == "cd" ]; then
+		_dokcd "$APPNAME"
 	elif [ "$ACTION" == "login" ] || [ "$ACTION" == "l" ]; then
 		docker exec -it $APPNAME bash
 	elif [ "$ACTION" == "log" ] || [ "$ACTION" == "logs" ]; then
@@ -1012,7 +1018,7 @@ function _dok {
 			chown michalm /tmp/$APPNAME.tar.gz ; \
 			docker start $APPNAME ;
 	elif [ "$ACTION" == "download" ]; then
-		scp kim5:/tmp/$APPNAME.tar.gz /tmp/$APPNAME.tar.gz
+		scp aru:/tmp/$APPNAME.tar.gz /tmp/$APPNAME.tar.gz
 	elif [ "$ACTION" == "load" ]; then
 		gunzip /tmp/$APPNAME.tar.gz ; docker load -i /tmp/$APPNAME.tar ;
 	elif [ "$ACTION" == "logindb" ]; then
