@@ -611,6 +611,14 @@ function _pdfr {
 	rm -f "/home/company/tmp/recode_pdf/$FILE_IN"
 	rm -f "/home/company/tmp/recode_pdf/$FILE_OUT_I"
 }
+alias pdfra='_pdfra'
+function _pdfra {
+	for vFile in ./*.pdf; do
+		if [ -f "$vFile" ]; then
+			_pdfr "$vFile"
+		fi
+	done
+}
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 # Weather:
 # alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF3'
@@ -706,26 +714,29 @@ function f1c {
 }
 alias f2='f2'
 function f2 {
-	if is_cmd rg; then
-		$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+	if is_cmd fdfind; then vCmd=fdfind; else vCmd=fd; fi
+	if is_cmd fd; then
+		$_SUDO $vCmd --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
 	else
-		$_SUDO fd --hidden --exclude .git --exclude /timeshift "$1"
+		$_SUDO $vCmd --hidden --exclude .git --exclude /timeshift "$1"
 	fi
 }
 alias f2c='f2c'
 function f2c {
+	if is_cmd fdfind; then vCmd=fdfind; else vCmd=fd; fi
 	if is_cmd rg; then
-		$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+		$_SUDO $vCmd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1" | rg -i "$1"
 	else
-		$_SUDO fd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
+		$_SUDO $vCmd --case-sensitive --hidden --exclude .git --exclude /timeshift "$1"
 	fi
 }
 alias fl='fl'
 function fl {
+	if is_cmd fdfind; then vCmd=fdfind; else vCmd=fd; fi
 	if is_cmd rg; then
-		$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1" | rg -i "$1"
+		$_SUDO $vCmd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1" | rg -i "$1"
 	else
-		$_SUDO fd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
+		$_SUDO $vCmd --hidden --follow --max-depth 50 --exclude .git --exclude /timeshift "$1"
 	fi
 }
 
