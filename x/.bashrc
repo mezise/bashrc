@@ -195,6 +195,7 @@ alias per_projects="sudo bash /home/$_USER/mih/projects/mparker/permissions_proj
 alias per_mysql='sudo bash /home/company/mydb/permissions_mysql.sh'
 alias cd_projects="cd $HOME/mih/projects/mparker/"
 alias cd_mysql="cd /home/company/mydb/mysql/"
+alias cd_downloads="cd $HOME/Downloads/"
 ##
 alias pik='pik1'
 alias pikrem='pikrem1'
@@ -234,12 +235,25 @@ alias updr3='yay -Syu -N'
 alias upda3='yay -Syu -a'
 alias updker3='yay -S $(yay -Qsq ^linux | grep -E --color=never ^linux)'
 ##
+alias pikt='pactree -r'
+alias ins='pik -S'
 alias piksize='_piksize'
 function _piksize {
+		# LANG=C pacman -Qi | awk -F: '$1~/^Name / { name=$2 } $1~/^Installed Size / { gsub(/ /, ""); size=$2; print "-", size, name }' | column -t | sort -hr -k 2
 	IFS='' read -r -d '' CMD <<"EOF"
-		LANG=C pacman -Qi | awk -F: '$1~/^Name / { name=$2 } $1~/^Installed Size / { gsub(/ /, ""); size=$2; print "-", size, name }' | column -t | sort -hr -k 2
+		LANG=C expac -H M '  %m\t %n (%v) (%d)' | sort -nr
 EOF
-	PACKAGES_NR="::Installed packages: `eval \"$CMD\" | wc -l`"
+	PACKAGES_NR="::Installed packages by size: `eval \"$CMD\" | wc -l`"
+	PACKAGES_LIST=`eval "$CMD"`
+	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -N --header=1 --no-number-headers --no-search-headers
+}
+##
+alias pikdate='_pikdate'
+function _pikdate {
+	IFS='' read -r -d '' CMD <<"EOF"
+		LANG=C expac --timefmt='%Y-%m-%d %T' ' %l\t %n (%v) (%d)' | sort -nr
+EOF
+	PACKAGES_NR="::Installed packages by date: `eval \"$CMD\" | wc -l`"
 	PACKAGES_LIST=`eval "$CMD"`
 	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -N --header=1 --no-number-headers --no-search-headers
 }
@@ -551,6 +565,8 @@ function _dbgn {
 alias reboot='sudo systemctl reboot'
 alias hibernate='sudo systemctl hibernate'
 alias stop='sudo systemctl poweroff'
+# alias lock='xdg-screensaver lock'
+alias lock='dm-tool lock'
 alias backup='/home/backup/backup.sh'
 alias backup-list='/home/backup/backup-list.sh'
 alias backup-dry-run='/home/backup/backup-dry-run.sh'
@@ -559,9 +575,8 @@ alias bton='sudo systemctl start bluetooth && bluetoothctl power on && bluetooth
 alias btof='sudo systemctl stop bluetooth && sleep 2 && awesome-client "awesome.restart()"'
 alias btonPrev01='sudo systemctl start bluetooth && sleep 1 && n=10; for ((i=1;i<=$n;i++)); do if $(bluetoothctl connect FC:A8:9A:94:AC:44 | grep -q "Connection successful"); then echo "OK"; break; else echo "wait ($i/$n)"; sleep 1; fi; done;'
 alias btofPrev01='sudo systemctl stop bluetooth'
-alias tunkim1='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 kim1'
-alias tunkim1b='ssh -nN -R 0.0.0.0:41443:172.30.0.1:443 -R 0.0.0.0:41080:172.30.0.1:80 kim1'
-alias tunscr='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
+# alias tunscr='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 -R 0.0.0.0:41080:172.20.0.1:80 scr'
+alias tunscr='ssh -nN -R 0.0.0.0:41443:172.20.0.1:443 scr'
 alias tunaym='ssh -L 19443:0.0.0.0:443 -L 19080:0.0.0.0:80 -L 19880:0.0.0.0:8080 -L 28267:172.29.0.1:48267 sam2'
 alias tunsam='tunaym'
 alias _session='_session'
@@ -577,6 +592,10 @@ function _session {
 		tmux select-window -t s:1
 	fi
 	tmux -2 attach-session -t s
+}
+alias open='_open'
+function _open {
+	exec "$@" 2>&1>/dev/null &exit
 }
 alias color='grabc ; xdotool getmouselocation --shell'
 alias xkb="~$_USER/x/xkb/xkbcomp_my.sh errors"
@@ -621,10 +640,14 @@ function _pdfra {
 }
 alias hdeno='deno run --allow-net --unstable --watch /home/michalm/projects/p_other_test/deno/src/main.ts'
 # Weather:
-# alias wr='curl -4 https://en.wttr.in/Poznań,%20Poland?qF3'
-# alias wr='curl -4 https://en.wttr.in/Minsk,%20Belarus?qF3'
-alias wr='curl -4 https://en.wttr.in/Opalenica,%20Poland?qF3'
-# alias wr='curl -4 https://en.wttr.in/Budva,%20Montenegro?qF3'
+alias wr='_wr'
+function _wr {
+	PAR1=$1
+	if [ "$PAR1" == "" ]; then
+		PAR1=Opalenica,%20Poland
+	fi
+	curl -4 https://en.wttr.in/${PAR1}?qF3
+}
 alias wi='nmtui connect'
 alias wifi='nmcli dev wifi list --rescan yes'
 alias wififreq='sudo wpa_cli status | grep freq'
@@ -755,6 +778,11 @@ function sc {
 	else
 		grep -E -R "$1" .
 	fi
+}
+
+alias lsof_sort_cnt='_lsof_sort_cnt'
+function _lsof_sort_cnt {
+	$_SUDO lsof -w | awk '{print $1}' | sort | uniq -c | sort -rn | head -n 20
 }
 
 function _file_list {
@@ -1353,6 +1381,7 @@ function diffproj {
 }
 function diffproj_ {
 	diff -Nr --exclude="www_write" --exclude="CVS" --exclude="*update*.sh" --exclude="cfg_scmignore.*" $1 $2
+	# difft $1 $2
 }
 function diffproj2 {
 	diff -Nr --brief --exclude="www_write" --exclude="CVS" $1 $2
@@ -1749,7 +1778,12 @@ export QT_QPA_PLATFORMTHEME=qt5ct
 export ANDROID_HOME=/home/$_USER/Android/Sdk/
 export ANDROID_SDK_ROOT=/home/$_USER/Android/Sdk/
 # Set PATH:
-PATH=~$_USER/bin/:/home/t/cargo/bin/:/usr/sbin/:/sbin/\
+PATH=~$_USER/bin/\
+:/home/t/cargo/bin/\
+:/home/t/target/release/\
+:/home/t/target/debug/\
+:/usr/sbin/\
+:/sbin/\
 :${ANDROID_HOME}tools/:${ANDROID_HOME}platform-tools/\
 :$PATH\
 ""
