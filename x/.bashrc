@@ -782,7 +782,11 @@ function sc {
 
 alias lsof_sort_cnt='_lsof_sort_cnt'
 function _lsof_sort_cnt {
-	$_SUDO lsof -w | awk '{print $1}' | sort | uniq -c | sort -rn | head -n 20
+	PAR1=$1
+	if [ "$PAR1" == "" ]; then
+		PAR1=20
+	fi
+	$_SUDO lsof -w | awk '{print $1}' | sort | uniq -c | sort -rn | head -n $PAR1
 }
 
 function _file_list {
