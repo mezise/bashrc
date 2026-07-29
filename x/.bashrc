@@ -791,45 +791,49 @@ function _lsof_sort_cnt {
 
 function _file_list {
 	PARS=$@
+	echo "Finding *ARG1* files to list (recursively)."
 	if [ ! -z "$PARS" ]; then
-		echo "Finding *ARG1* files to list (recursively)..."
+		echo "..."
 		find ./ -type f -name "*$PARS*"
 		TMP="find ./ -type f -name \"*$PARS*\" -delete"
 		echo "COMMAND TO DELETE ABOVE FILES:"
 		echo $TMP
 	else
-		echo "Empty parameter to delete files."
+		echo "[ERROR] Empty ARG1."
 	fi
 }
 
 function _file_du {
 	PARS=$@
+	echo "Finding *ARG1* files to count size (recursively)."
 	if [ ! -z "$PARS" ]; then
-		echo "Finding *ARG1* files to count size (recursively)..."
+		echo "..."
 		find ./ -type f -name "*$PARS*" -exec du -ch {} + | grep total
 	else
-		echo "Empty parameter to find files."
+		echo "[ERROR] Empty ARG1."
 	fi
 }
 
 function _dir_du {
 	PARS=$@
+	echo "Finding *ARG1* directories to count size (1 level)."
 	if [ ! -z "$PARS" ]; then
-		echo "Finding *ARG1* directories to count size (1 level)..."
+		echo "..."
 		find ./ -maxdepth 1 -type d -name "*$PARS*" -exec du -ch {} + | grep total
 	else
-		echo "Empty parameter to find files."
+		echo "[ERROR] Empty ARG1."
 	fi
 }
 
 function _file_del {
 	PARS=$@
+	echo "Deleting recursively files."
 	if [ ! -z "$PARS" ]; then
-		# echo "Deleting recursively files..."
+		# echo "..."
 		# find ./ -type f -name "*$PARS*" -delete
 		echo "DONE"
 	else
-		echo "Empty parameter to delete files."
+		echo "[ERROR] Empty ARG1."
 	fi
 }
 
