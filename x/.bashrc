@@ -245,7 +245,7 @@ function _piksize {
 EOF
 	PACKAGES_NR="::Installed packages by size: `eval \"$CMD\" | wc -l`"
 	PACKAGES_LIST=`eval "$CMD"`
-	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -N --header=1 --no-number-headers --no-search-headers
+	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -NI --header=1 --no-number-headers --no-search-headers
 }
 ##
 alias pikdate='_pikdate'
@@ -255,7 +255,7 @@ function _pikdate {
 EOF
 	PACKAGES_NR="::Installed packages by date: `eval \"$CMD\" | wc -l`"
 	PACKAGES_LIST=`eval "$CMD"`
-	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -N --header=1 --no-number-headers --no-search-headers
+	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -NI --header=1 --no-number-headers --no-search-headers
 }
 ##
 alias sys="$_SUDO inxi -Fxxxzm"
@@ -792,7 +792,7 @@ function _lsof_sort_cnt {
 function _file_list {
 	PARS=$@
 	if [ ! -z "$PARS" ]; then
-		echo "Finding recursively files to list..."
+		echo "Finding *ARG1* files to list (recursively)..."
 		find ./ -type f -name "*$PARS*"
 		TMP="find ./ -type f -name \"*$PARS*\" -delete"
 		echo "COMMAND TO DELETE ABOVE FILES:"
@@ -805,8 +805,18 @@ function _file_list {
 function _file_du {
 	PARS=$@
 	if [ ! -z "$PARS" ]; then
-		echo "Finding recursively files to count size..."
+		echo "Finding *ARG1* files to count size (recursively)..."
 		find ./ -type f -name "*$PARS*" -exec du -ch {} + | grep total
+	else
+		echo "Empty parameter to find files."
+	fi
+}
+
+function _dir_du {
+	PARS=$@
+	if [ ! -z "$PARS" ]; then
+		echo "Finding *ARG1* directories to count size (1 level)..."
+		find ./ -maxdepth 1 -type d -name "*$PARS*" -exec du -ch {} + | grep total
 	else
 		echo "Empty parameter to find files."
 	fi
@@ -1445,6 +1455,11 @@ function _synch_project_mode {
 		vCfg=cfg_almacg_samp_${vMode}.php5
 		vSrc=/home/$_USER/mih/projects/mparker/p_samp_test/src/
 		vTrg=${vProjectShort}_synch:/home/company/${vClient}/docker/samp_data/web_data/html/wwwsamp/${vMode}_cc/src/
+	elif [ "$vProjectShort" == "samaru" ]; then
+		vClient=aru
+		vCfg=cfg_almacg_samp_${vMode}.php5
+		vSrc=/home/$_USER/mih/projects/mparker/p_samp_test/src/
+		vTrg=aru:/home/company/scr/docker/scrm_data/web_data/arubico_html/samp_tmp/test/src/
 	elif [ "$vProjectShort" == "scr" ]; then
 		vClient=scr
 		vCfg=cfg_scr_crm_${vMode}.php5
