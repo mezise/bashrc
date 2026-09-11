@@ -237,12 +237,18 @@ alias updker3='yay -S $(yay -Qsq ^linux | grep -E --color=never ^linux)'
 ##
 alias pikt='pactree -r'
 alias ins='pik -S'
+alias pikdown='sudo DOWNGRADE_FROM_ALA=1 downgrade'
 alias piksize='_piksize'
 function _piksize {
-		# LANG=C pacman -Qi | awk -F: '$1~/^Name / { name=$2 } $1~/^Installed Size / { gsub(/ /, ""); size=$2; print "-", size, name }' | column -t | sort -hr -k 2
-	IFS='' read -r -d '' CMD <<"EOF"
-		LANG=C expac -H M '  %m\t %n (%v) (%d)' | sort -nr
+	if [ "$1" == "a" ]; then
+		IFS='' read -r -d '' CMD <<"EOF"
+			LANG=C pacman -Qim | awk -F: '$1~/^Name / { name=$2 } $1~/^Version / { gsub(/ /, "_"); ver=$2 } $1~/^Description / { gsub(/ /, "_"); desc=$2 } $1~/^Installed Size / { gsub(/ /, ""); size=$2; print "-", size, name, ver, desc }' | column -t | sort -hr -k 2
 EOF
+	else
+		IFS='' read -r -d '' CMD <<"EOF"
+			LANG=C expac -H M '  %m\t %n (%v) (%d)' | sort -nr
+EOF
+	fi
 	PACKAGES_NR="::Installed packages by size: `eval \"$CMD\" | wc -l`"
 	PACKAGES_LIST=`eval "$CMD"`
 	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -NI --header=1 --no-number-headers --no-search-headers
@@ -250,9 +256,15 @@ EOF
 ##
 alias pikdate='_pikdate'
 function _pikdate {
-	IFS='' read -r -d '' CMD <<"EOF"
-		LANG=C expac --timefmt='%Y-%m-%d %T' ' %l\t %n (%v) (%d)' | sort -nr
+	if [ "$1" == "a" ]; then
+		IFS='' read -r -d '' CMD <<"EOF"
+			echo TODO
 EOF
+	else
+		IFS='' read -r -d '' CMD <<"EOF"
+			LANG=C expac --timefmt='%Y-%m-%d %T' ' %l\t %n (%v) (%d)' | sort -nr
+EOF
+	fi
 	PACKAGES_NR="::Installed packages by date: `eval \"$CMD\" | wc -l`"
 	PACKAGES_LIST=`eval "$CMD"`
 	printf "$PACKAGES_NR""\n""$PACKAGES_LIST""\n" | less -NI --header=1 --no-number-headers --no-search-headers
@@ -700,6 +712,11 @@ function _color_output_column {
 alias lg=_lg
 function _lg {
 	l | grep -E "[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+?$@" \
+		| grep -E --color $@
+}
+alias lgh=_lgh
+function _lgh {
+	l -h | grep -E "[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+[^ ]+[ ]+?$@" \
 		| grep -E --color $@
 }
 
@@ -1475,10 +1492,15 @@ function _synch_project_mode {
 	fi
 	###
 	if [ "`hostname`" == "box" ]; then
-		echo ::Synch-project[${vProjectShort}]-mode[${vMode}] started $(date -Is)
+		echo ::Synch-project[${vProjectShort}]-mode[${vMode}] started $(date -Is) ;
+		echo ;
 		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $vSrc $vTrg)
 		COMMAND_CFG=(rsync -a ${vSrc}htdocs/cfg/${vCfg} ${vTrg}htdocs/cfg/cfg_scmignore.php5)
-		echo ; echo ::COMMAND: "${COMMAND[@]}" ; echo ::COMMAND_CFG: "${COMMAND_CFG[@]}" ; echo ;
+		echo ::CLEAR HASHED: _hashed_remove_in_projects ;
+		echo ;
+		_hashed_remove_in_projects
+		echo ::COMMAND: "${COMMAND[@]}" ; echo ::COMMAND_CFG: "${COMMAND_CFG[@]}" ;
+		echo ;
 		# return
 		###
 		"${COMMAND[@]}"
@@ -1486,10 +1508,11 @@ function _synch_project_mode {
 		while inotifywait -r -e modify,create,delete --exclude '\.git|CVS|.*_scmignore.*' $vSrc; do
 			"${COMMAND[@]}"
 			echo :Synch-project[${vProjectShort}]-mode[${vMode}] on-change finished $(date -Is)
-			echo
+			echo ;
 		done
 	else
 		echo ::ERROR: Synch-project[${vProjectShort}]-mode[${vMode}] available only on "box"
+		echo ;
 	fi
 }
 
@@ -1824,6 +1847,7 @@ export CARGO_TARGET_DIR=/home/t/target
 export CARGO_BUILD_JOBS=2
 export SCCACHE_DIR=/home/t/sccache
 export RUSTC_WRAPPER=sccache
+# export RUSTC_WRAPPER=kache
 export BINSTALL_DISABLE_TELEMETRY=true
 export DOWNGRADE_FROM_ALA=1 # https://wiki.manjaro.org/index.php/Downgrading_packages
 # End.
