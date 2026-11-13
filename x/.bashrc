@@ -66,7 +66,7 @@ function _disk {
 	echo
 	echo ::LSBLK: ;
 	# $_SUDO lsblk -e 7 -o name,fstype,fsver,size,fsused,label,partlabel,mountpoint,uuid,partuuid
-	$_SUDO lsblk -e 7 -o name,fstype,size,fsused,label,partlabel,mountpoint,uuid,partuuid
+	$_SUDO lsblk -e 7 -o name,fstype,size,fsused,label,partlabel,mountpoint,uuid,partuuid,tran
 	echo ;
 	echo ::SWAP[/proc/swaps]: ;
 	cat /proc/swaps
@@ -137,6 +137,14 @@ function _pw2 {
 		PAR1=53
 	fi
 	pwgen -r \'\"\@\?\^\&\*\(\)\`\:\~\?\;\:\[\]\{\}\.\,\\\/\|\>\<\#\+\_\=\%\-\$ -cny $PAR1
+}
+alias pw3='_pw3'
+function _pw3 {
+	PAR1=$1
+	if [ "$PAR1" == "" ]; then
+		PAR1=53
+	fi
+	pwgen -r \'\"\@\?\^\&\*\(\)\`\:\~\?\;\:\[\]\{\}\.\,\\\/\|\>\<\#\+\_\=\%\-\$ -cn $PAR1
 }
 # alias fzf="fzf -m --preview '(bat --style=numbers --color=always {} || cat {}) 2> /dev/null | head -300' --preview-window='right:hidden:wrap' --bind ctrl-a:select-all,ctrl-d:deselect-all,f2:toggle-preview"
 alias ver='
@@ -272,6 +280,7 @@ EOF
 ##
 alias sys="$_SUDO inxi -Fxxxzm"
 alias sys2="$_SUDO inxi -FxxxzmaJdfiloprujnsZ -t cm"
+alias libs='ldd'
 alias fw='_fw'
 function _fw {
 	$_SUDO ufw status verbose | grep -E "Status|Logging|Default"
@@ -1494,11 +1503,11 @@ function _synch_project_mode {
 	if [ "`hostname`" == "box" ]; then
 		echo ::Synch-project[${vProjectShort}]-mode[${vMode}] started $(date -Is) ;
 		echo ;
+		echo ::CLEAR HASHED: _hashed_remove_in_projects ;
+		_hashed_remove_in_projects
+		echo ;
 		COMMAND=(rsync -avzh --no-perms --omit-dir-times --omit-link-times --exclude='.git' --exclude='CVS' --exclude='*_scmignore*' $vSrc $vTrg)
 		COMMAND_CFG=(rsync -a ${vSrc}htdocs/cfg/${vCfg} ${vTrg}htdocs/cfg/cfg_scmignore.php5)
-		echo ::CLEAR HASHED: _hashed_remove_in_projects ;
-		echo ;
-		_hashed_remove_in_projects
 		echo ::COMMAND: "${COMMAND[@]}" ; echo ::COMMAND_CFG: "${COMMAND_CFG[@]}" ;
 		echo ;
 		# return
